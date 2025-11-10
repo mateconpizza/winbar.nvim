@@ -11,21 +11,23 @@ M.cache = {
 
 -- formats diagnostic counts in standard mode
 ---@param counts table
+---@param icons WinBar.DiagnosticIcons
 ---@return string
-local function format_standard(counts)
+local function format_standard(counts, icons)
+  icons = icons or {}
   local components = {}
 
   if counts.errors > 0 then
-    table.insert(components, '%#DiagnosticError#E:' .. counts.errors .. '%*')
+    table.insert(components, '%#DiagnosticError#' .. icons.error .. counts.errors .. '%*')
   end
   if counts.warnings > 0 then
-    table.insert(components, '%#DiagnosticWarn#W:' .. counts.warnings .. '%*')
+    table.insert(components, '%#DiagnosticWarn#' .. icons.warn .. counts.warnings .. '%*')
   end
   if counts.info > 0 then
-    table.insert(components, '%#DiagnosticInfo#I:' .. counts.info .. '%*')
+    table.insert(components, '%#DiagnosticInfo#' .. icons.info .. counts.info .. '%*')
   end
   if counts.hints > 0 then
-    table.insert(components, '%#DiagnosticHint#H:' .. counts.hints .. '%*')
+    table.insert(components, '%#DiagnosticHint#' .. icons.hint .. counts.hints .. '%*')
   end
 
   return table.concat(components, ' ')
@@ -119,8 +121,9 @@ end
 -- formatted string of diagnostic counts for the current buffer.
 -- cached for 100ms.
 ---@param style? "standard"|"mini"
+---@param icons WinBar.DiagnosticIcons
 ---@return string
-function M.diagnostics(style)
+function M.diagnostics(style, icons)
   local bufnr = vim.api.nvim_get_current_buf()
   local current_time = vim.loop.hrtime()
   local style_key = style or 'standard'
@@ -135,7 +138,7 @@ function M.diagnostics(style)
   end
 
   local counts = get_diagnostic_counts(bufnr)
-  local result = (style_key == 'mini') and format_mini(counts) or format_standard(counts)
+  local result = (style_key == 'mini') and format_mini(counts) or format_standard(counts, icons)
 
   cache[cache_key] = result
   M.cache.last_update = current_time

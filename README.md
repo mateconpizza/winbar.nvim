@@ -37,6 +37,12 @@ require('winbar').setup({
     style = 'standard', -- or 'mini' (wip)
     bug_icon = '󰃤',
     show_detail = true,
+    icons = {
+      error = '✗:',
+      hint = 'h:',
+      info = 'i:',
+      warn = 'w:',
+    },
   },
 
   lsp_status = true,

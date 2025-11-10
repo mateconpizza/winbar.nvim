@@ -24,6 +24,7 @@ function M.register(c)
 end
 
 -- define all components
+---@param config WinBar.Config
 function M.setup(config)
   local components = require('winbar.components')
   local utils = require('winbar.util')
@@ -60,7 +61,7 @@ function M.setup(config)
       return config.diagnostics.enabled
     end,
     render = function()
-      local d = components.diagnostics(config.diagnostics.style or 'standard')
+      local d = components.diagnostics(config.diagnostics.style or 'standard', config.diagnostics.icons)
       if d == '' then
         return nil
       end

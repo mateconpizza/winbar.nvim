@@ -5,11 +5,18 @@ local U = require('winbar.util')
 ---@class WinBar
 local M = {}
 
+---@class WinBar.DiagnosticIcons
+---@field error? string icon for errors
+---@field hint? string icon for hints
+---@field info? string icon for infos
+---@field warning? string icon for warnings
+
 ---@class WinBar.Diagnostic
 ---@field enabled? boolean enable diagnostics
 ---@field style? string diagnostics style (minimalist or standard)
 ---@field bug_icon? string show bug icon
 ---@field show_detail? boolean show detail
+---@field icons? WinBar.DiagnosticIcons
 
 ---@class WinBar.Icons
 ---@field modified? string icon for modified buffers.
@@ -64,6 +71,12 @@ M.config = {
     style = 'standard',
     bug_icon = '󰃤',
     show_detail = true,
+    icons = {
+      error = '✗:',
+      hint = 'h:',
+      info = 'i:',
+      warn = 'w:',
+    },
   },
 
   lsp_status = true,
