@@ -27,7 +27,6 @@ end
 ---@param config WinBar.Config
 function M.setup(config)
   local components = require('winbar.components')
-  local utils = require('winbar.util')
 
   -- git branch component
   M.register({
@@ -70,6 +69,7 @@ function M.setup(config)
 
       -- optional bug icon
       if config.diagnostics.bug_icon then
+        -- FIX: remove bug_icon, show it only in minimalist.
         table.insert(parts, '%#ErrorMsg#' .. config.diagnostics.bug_icon .. '%*')
       end
 
@@ -130,24 +130,7 @@ function M.setup(config)
     render = function()
       local bufname = vim.api.nvim_buf_get_name(0)
       local filename = vim.fn.fnamemodify(bufname, ':t')
-
-      -- check for duplicates
-      local all_buffers = vim.api.nvim_list_bufs()
-      local duplicates = 0
-      for _, buf in ipairs(all_buffers) do
-        if vim.api.nvim_buf_is_loaded(buf) then
-          local name = vim.api.nvim_buf_get_name(buf)
-          if vim.fn.fnamemodify(name, ':t') == filename then
-            duplicates = duplicates + 1
-          end
-        end
-      end
-
-      if duplicates > 1 then
-        return utils.get_relative_path(bufname)
-      else
-        return filename
-      end
+      return components.filename(bufname, filename)
     end,
 
     spacing = true, -- WIP

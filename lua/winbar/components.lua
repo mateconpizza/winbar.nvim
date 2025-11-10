@@ -176,4 +176,26 @@ function M.diagnostics_mini()
   return result
 end
 
+---@param bufname string
+---@param filename string
+---@return string
+function M.filename(bufname, filename)
+  local all_buffers = vim.api.nvim_list_bufs()
+  local duplicates = 0
+  for _, buf in ipairs(all_buffers) do
+    if vim.api.nvim_buf_is_loaded(buf) then
+      local name = vim.api.nvim_buf_get_name(buf)
+      if vim.fn.fnamemodify(name, ':t') == filename then
+        duplicates = duplicates + 1
+      end
+    end
+  end
+
+  if duplicates > 1 then
+    return require('winbar.util').get_relative_path(bufname)
+  end
+
+  return filename
+end
+
 return M
