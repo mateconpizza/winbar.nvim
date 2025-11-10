@@ -56,6 +56,7 @@ require('winbar').setup({
 })
 ```
 
-## TODO
+## Highlight groups
 
-- [ ] add highlight groups
+- `WinBar` : Active winbar highlight
+- `WinBarNC` : Winbar highlight when buffer loses focus

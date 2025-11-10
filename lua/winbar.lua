@@ -82,14 +82,10 @@ M.config = {
   },
 }
 
-local function setup_highlights()
-  U.set_hl('WinBar', { bold = true, italic = true })
-  U.set_hl('WinBarNC', { link = 'Comment' })
-end
-
 -- auto-refresh winbar on relevant events
 local function setup_autocmds()
   local group = U.augroup('WinBar')
+
   vim.api.nvim_create_autocmd({
     'BufEnter',
     'BufWritePost',
@@ -176,7 +172,6 @@ function M.setup(opts)
     return
   end
 
-  setup_highlights()
   setup_autocmds()
 
   R.setup(M.config)
