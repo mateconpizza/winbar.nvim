@@ -90,19 +90,28 @@ function M.git_branch(icon)
     return M.cache.git_branch
   end
 
-  -- try to get git branch using vim.fn.system
-  local handle = io.popen('git rev-parse --abbrev-ref HEAD 2>/dev/null')
-  if handle then
-    local branch = handle:read('*a'):gsub('\n', '')
-    handle:close()
-    if branch and branch ~= '' then
-      M.cache.git_branch = '%#Comment#' .. icon .. ' ' .. branch .. '%*'
-      return M.cache.git_branch
-    end
+  -- check if git is available
+  if vim.fn.executable('git') ~= 1 then
+    M.cache.git_branch = ''
+    return ''
   end
 
-  M.cache.git_branch = ''
-  return ''
+  -- check if inside a git repository
+  local is_git_repo = vim.fn.system({ 'git', 'rev-parse', '--is-inside-work-tree' })
+  if vim.v.shell_error ~= 0 or not is_git_repo:match('true') then
+    M.cache.git_branch = ''
+    return ''
+  end
+
+  -- get current branch name
+  local branch = vim.fn.system({ 'git', 'rev-parse', '--abbrev-ref', 'HEAD' }):gsub('\n', '')
+  if vim.v.shell_error ~= 0 or branch == '' then
+    M.cache.git_branch = ''
+    return ''
+  end
+
+  M.cache.git_branch = string.format('%%#Comment#%s %s%%*', icon, branch)
+  return M.cache.git_branch
 end
 
 -- diagnostic counts for the current buffer
