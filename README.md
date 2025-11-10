@@ -33,12 +33,25 @@ require('winbar').setup({
   },
 
   diagnostics = {
-    enabled = false,
+    enabled = true,
+    style = 'standard', -- or 'mini' (wip)
     bug_icon = '󰃤',
     show_detail = true,
   },
 
   lsp_status = true,
   git_branch = true,
+
+  layout = {
+    left = { 'git_branch' },
+    right = {
+      'lsp_status',
+      'diagnostics',
+      'modified',
+      'readonly',
+      'file_icon',
+      'filename',
+    },
+  },
 })
 ```
