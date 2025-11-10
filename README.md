@@ -55,3 +55,7 @@ require('winbar').setup({
   },
 })
 ```
+
+## TODO
+
+- [ ] add highlight groups
