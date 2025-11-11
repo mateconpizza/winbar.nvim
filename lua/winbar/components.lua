@@ -1,4 +1,6 @@
 ---@diagnostic disable: undefined-field
+
+---@module 'winbar.components'
 ---@class WinBar.Components
 local M = {}
 

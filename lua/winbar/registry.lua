@@ -1,3 +1,4 @@
+---@module 'winbar.registry'
 ---@class WinBar.Registry
 local M = {}
 

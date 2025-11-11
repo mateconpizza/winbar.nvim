@@ -1,5 +1,6 @@
 ---@alias WinBar.HighlightAttrs vim.api.keyset.highlight
 
+---@module 'winbar.highlight'
 ---@class WinBar.Highlighter
 local M = {}
 
