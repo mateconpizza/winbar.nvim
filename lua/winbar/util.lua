@@ -36,11 +36,6 @@ function M.augroup(name)
   return vim.api.nvim_create_augroup('me_' .. name, { clear = true })
 end
 
--- sets a highlight group
-function M.set_hl(name, val)
-  vim.api.nvim_set_hl(0, name, val)
-end
-
 -- check if current buffer is a special buffer type or filetype that should be excluded.
 ---@param c WinBar.Config
 function M.is_special_buffer(c)

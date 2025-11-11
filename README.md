@@ -64,10 +64,27 @@ require('winbar').setup({
       'filename',
     },
   },
+
+  styles = {
+    winbar = { link = 'StatusLine' },
+    winbarnc = { link = 'StatusLineNC' },
+    git_branch = { link = 'Comment' },
+    lsp_status = { link = 'Comment' },
+    readonly = { link = 'ErrorMsg' },
+    modified = { link = 'WarningMsg' },
+    filename = { link = 'Normal' },
+  },
 })
 ```
 
 ## Highlight groups
 
-- `WinBar` : Active winbar highlight
-- `WinBarNC` : Winbar highlight when buffer loses focus
+| Group             | Default      | Description                              |
+| ----------------- | ------------ | ---------------------------------------- |
+| `WinBar`          | StatusLine   | Active winbar highlight                  |
+| `WinBarNC`        | StatusLineNC | Winbar highlight when buffer loses focus |
+| `WinBarGitBranch` | Comment      | Git branch highlight                     |
+| `WinBarLspStatus` | Comment      | LSP status highlight                     |
+| `WinBarReadonly`  | ErrorMsg     | LSP status highlight                     |
+| `WinBarModified`  | WarningMsg   | LSP status highlight                     |
+| `WinBarFilename`  | Normal       | LSP status highlight                     |

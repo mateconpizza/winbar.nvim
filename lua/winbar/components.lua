@@ -9,6 +9,8 @@ M.cache = {
   last_update = 0,
 }
 
+M.hl = require('winbar.highlight').highlights
+
 -- formats diagnostic counts in standard mode
 ---@param counts table
 ---@param icons WinBar.DiagnosticIcons
@@ -80,7 +82,9 @@ function M.lsp_status()
     table.insert(names, client.name)
   end
 
-  return '%#Comment#[' .. table.concat(names, ',') .. ']%*'
+  local result = lsp.format(table.concat(names, lsp.separator))
+
+  return '%#' .. M.hl.lsp_status.group .. '#' .. result .. '%*'
 end
 
 -- current git branch name as formatted string with icon, cached for performance.
@@ -110,7 +114,7 @@ function M.git_branch(icon)
     return ''
   end
 
-  M.cache.git_branch = string.format('%%#Comment#%s %s%%*', icon, branch)
+  M.cache.git_branch = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
   return M.cache.git_branch
 end
 
@@ -195,7 +199,17 @@ function M.filename(bufname, filename)
     return require('winbar.util').get_relative_path(bufname)
   end
 
-  return filename
+  return '%#' .. M.hl.filename.group .. '#' .. filename .. '%*'
+end
+
+---@param icon string
+function M.readonly(icon)
+  return '%#' .. M.hl.readonly.group .. '#' .. icon .. '%*'
+end
+
+---@param icon string
+function M.modified(icon)
+  return '%#' .. M.hl.modified.group .. '#' .. icon .. '%*'
 end
 
 return M

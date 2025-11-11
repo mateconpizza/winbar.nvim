@@ -1,4 +1,5 @@
 local C = require('winbar.components')
+local H = require('winbar.highlight')
 local R = require('winbar.registry')
 local U = require('winbar.util')
 
@@ -18,6 +19,11 @@ local M = {}
 ---@field show_detail? boolean show detail
 ---@field icons? WinBar.DiagnosticIcons
 
+---@class WinBar.LspStatus
+---@field enabled? boolean enable LSP client name display
+---@field separator? string separator between multiple LSP clients
+---@field format? fun(clients: string): string custom formatter for client names
+
 ---@class WinBar.Icons
 ---@field modified? string icon for modified buffers.
 ---@field readonly? string icon for readonly buffers.
@@ -27,11 +33,15 @@ local M = {}
 ---@field left? string[] ordered list of left-aligned component names.
 ---@field right? string[] ordered list of right-aligned component names.
 
+---@class WinBar.UserHighlights
+---@field git_branch? WinBar.HighlightAttrs git branch highlights.
+---@field lsp_status? WinBar.HighlightAttrs LSP client name highlights.
+
 ---@class WinBar.Config
 ---@field enabled? boolean
 ---@field file_icon? boolean show file icon
 ---@field diagnostics? WinBar.Diagnostic diagnostics
----@field lsp_status? boolean enable lsp name
+---@field lsp? WinBar.LspStatus LSP client name display.
 ---@field icons? WinBar.Icons icons used throughout the WinBar
 ---@field show_single_buffer? boolean show with single buffer
 ---@field exclude_filetypes? string[] filetypes to exclude from WinBar display.
@@ -79,7 +89,14 @@ M.config = {
     },
   },
 
-  lsp_status = true,
+  lsp = {
+    enabled = true,
+    separator = ',',
+    format = function(clients)
+      return clients
+    end,
+  },
+
   git_branch = true,
 
   layout = {
@@ -93,12 +110,20 @@ M.config = {
       'filename',
     },
   },
+
+  styles = {
+    winbar = { link = 'StatusLine' },
+    winbarnc = { link = 'StatusLineNC' },
+    git_branch = { link = 'Comment' },
+    lsp_status = { link = 'Comment' },
+    readonly = { link = 'ErrorMsg' },
+    modified = { link = 'WarningMsg' },
+    filename = { link = 'Normal' },
+  },
 }
 
 -- auto-refresh winbar on relevant events
 local function setup_autocmds()
-  local group = U.augroup('WinBar')
-
   vim.api.nvim_create_autocmd({
     'BufEnter',
     'BufWritePost',
@@ -108,7 +133,7 @@ local function setup_autocmds()
     'LspAttach',
     'LspDetach',
   }, {
-    group = group,
+    group = U.augroup('WinBar'),
     callback = function()
       -- clear cache on relevant events
       C.cache.diagnostics = {}
@@ -180,17 +205,28 @@ end
 
 ---@param opts? WinBar.Config
 function M.setup(opts)
-  M.config = vim.tbl_deep_extend('force', M.config, opts or {})
+  M.config = vim.tbl_deep_extend('force', vim.deepcopy(M.config), opts or {})
+
+  -- styles are replaced entirely
+  if opts and opts.styles then
+    for key, style in pairs(opts.styles) do
+      M.config.styles[key] = style
+    end
+  end
+
   if not M.config.enabled then
     return
   end
 
   setup_autocmds()
 
+  -- define all components
   R.setup(M.config)
-  _G._winbar_render = M.render
 
-  -- set up winbar
+  -- apply highlights
+  H.setup(M.config.styles)
+
+  _G._winbar_render = M.render
   vim.o.winbar = '%{%v:lua._winbar_render()%}'
 end
 

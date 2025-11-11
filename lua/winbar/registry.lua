@@ -90,7 +90,7 @@ function M.setup(config)
       return vim.bo.modified
     end,
     render = function()
-      return '%#WarningMsg#' .. config.icons.modified .. '%*'
+      return components.modified(config.icons.modified)
     end,
   })
 
@@ -102,7 +102,7 @@ function M.setup(config)
       return vim.bo.readonly
     end,
     render = function()
-      return '%#ErrorMsg#' .. config.icons.readonly .. '%*'
+      return components.readonly(config.icons.readonly)
     end,
   })
 
