@@ -72,7 +72,6 @@ require('winbar').setup({
     lsp_status = { link = 'Comment' },
     readonly = { link = 'ErrorMsg' },
     modified = { link = 'WarningMsg' },
-    filename = { link = 'Normal' },
   },
 })
 ```
@@ -87,4 +86,3 @@ require('winbar').setup({
 | `WinBarLspStatus` | Comment      | LSP status highlight                     |
 | `WinBarReadonly`  | ErrorMsg     | LSP status highlight                     |
 | `WinBarModified`  | WarningMsg   | LSP status highlight                     |
-| `WinBarFilename`  | Normal       | LSP status highlight                     |

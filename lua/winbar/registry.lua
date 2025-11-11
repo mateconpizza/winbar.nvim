@@ -45,10 +45,10 @@ function M.setup(config)
     name = 'lsp_status',
     side = 'right',
     enabled = function()
-      return config.lsp_status
+      return config.lsp.enabled
     end,
     render = function()
-      return components.lsp_status()
+      return components.lsp_status(config.lsp)
     end,
   })
 

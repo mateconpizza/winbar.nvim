@@ -71,7 +71,12 @@ function M.file_icon(filename)
 end
 
 -- lsp client names for current buffer as formatted status string.
-function M.lsp_status()
+---@param lsp WinBar.LspStatus
+function M.lsp_status(lsp)
+  if vim.o.columns < 60 then
+    return ''
+  end
+
   local clients = vim.lsp.get_clients({ bufnr = 0 })
   if #clients == 0 then
     return ''
@@ -196,10 +201,10 @@ function M.filename(bufname, filename)
   end
 
   if duplicates > 1 then
-    return require('winbar.util').get_relative_path(bufname)
+    filename = require('winbar.util').get_relative_path(bufname)
   end
 
-  return '%#' .. M.hl.filename.group .. '#' .. filename .. '%*'
+  return filename
 end
 
 ---@param icon string

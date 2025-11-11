@@ -14,7 +14,6 @@ local M = {}
 ---@field lsp_status WinBar.Highlight?    -- highlight for LSP status indicator
 ---@field modified WinBar.Highlight?      -- highlight for modified buffer symbol
 ---@field readonly WinBar.Highlight?      -- highlight for readonly indicator
----@field filename WinBar.Highlight?      -- highlight for filename section
 ---@field diagnostics WinBar.Highlight?   -- WIP: highlight for diagnostics section
 ---@field file_icon WinBar.Highlight?     -- WIP: highlight for file icon component
 -- stylua: ignore
@@ -25,7 +24,6 @@ M.highlights = {
   lsp_status  = { group = 'WinBarLspStatus',  default = {} },
   readonly    = { group = 'WinBarReadonly',   default = {} },
   modified    = { group = 'WinBarModified',   default = {} },
-  filename    = { group = 'WinBarFilename',   default = {} },
 }
 
 -- sets a highlight group
@@ -38,9 +36,11 @@ end
 ---@param styles WinBar.UserHighlights
 function M.setup(styles)
   for key, def in pairs(M.highlights) do
-    local style = styles[key]
-    local attrs = style or def.default
-    M.set_hl(def.group, attrs)
+    if vim.fn.hlexists(def.group) == 0 then
+      local style = styles[key]
+      local attrs = style or def.default
+      M.set_hl(def.group, attrs)
+    end
   end
 end
 
