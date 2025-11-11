@@ -49,12 +49,13 @@ local M = {}
 ---@field git_branch? boolean show git branch.
 ---@field styles? table<string, WinBar.HighlightAttrs> winbar highlights.
 M.config = {
-  enabled = true,
+  -- Core behavior
+  enabled = true, -- Enable the WinBar plugin
+  file_icon = true, -- Show file icon (e.g., via nvim-web-devicons)
+  show_single_buffer = true, -- Show WinBar even with a single visible buffer
 
-  file_icon = true,
-  show_single_buffer = true,
-
-  exclude_filetypes = {
+  -- Exclusions
+  exclude_filetypes = { -- Filetypes where WinBar will not be shown
     'aerial',
     'dap-float',
     'fugitive',
@@ -63,7 +64,7 @@ M.config = {
     'lazy',
     'man',
   },
-  exclude_buftypes = {
+  exclude_buftypes = { -- Buffer types where WinBar will not be shown
     'terminal',
     'quickfix',
     'help',
@@ -71,18 +72,20 @@ M.config = {
     'nowrite',
   },
 
+  -- Icons used across components
   icons = {
-    modified = '●',
-    readonly = '',
-    git_branch = '',
+    modified = '●', -- Shown for unsaved buffers
+    readonly = '', -- Shown for readonly buffers
+    git_branch = '', -- Git branch icon
   },
 
+  -- Diagnostics configuration
   diagnostics = {
-    enabled = true,
-    style = 'standard',
-    bug_icon = '󰃤',
-    show_detail = true,
-    icons = {
+    enabled = true, -- Show diagnostics (LSP/linters)
+    style = 'standard', -- Display style ("standard" or "mini")
+    bug_icon = '󰃤', -- Icon shown before diagnostic counts
+    show_detail = true, -- Show individual counts for each severity
+    icons = { -- Diagnostic severity icons
       error = '✗:',
       hint = 'h:',
       info = 'i:',
@@ -90,19 +93,22 @@ M.config = {
     },
   },
 
+  -- LSP client name display
   lsp = {
-    enabled = true,
-    separator = ',',
-    format = function(clients)
+    enabled = true, -- Enable LSP client display
+    separator = ',', -- Separator for multiple clients
+    format = function(clients) -- Formatter for LSP client names
       return clients
     end,
   },
 
-  git_branch = true,
+  -- Git branch display
+  git_branch = true, -- Show the current Git branch
 
+  -- Layout of the WinBar
   layout = {
-    left = { 'git_branch' },
-    right = {
+    left = { 'git_branch' }, -- Components aligned to the left
+    right = { -- Components aligned to the right
       'lsp_status',
       'diagnostics',
       'modified',
@@ -112,13 +118,14 @@ M.config = {
     },
   },
 
+  -- Highlight groups
   styles = {
-    winbar = { link = 'StatusLine' },
-    winbarnc = { link = 'Comment' },
-    git_branch = { link = 'Comment' },
-    lsp_status = { link = 'Comment' },
-    readonly = { link = 'ErrorMsg' },
-    modified = { link = 'WarningMsg' },
+    winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
+    winbarnc = { link = 'Comment' }, -- Inactive window WinBar highlight
+    git_branch = { link = 'Comment' }, -- Git branch highlight
+    lsp_status = { link = 'Comment' }, -- LSP client highlight
+    readonly = { link = 'ErrorMsg' }, -- Readonly icon highlight
+    modified = { link = 'WarningMsg' }, -- Modified indicator highlight
   },
 }
 
