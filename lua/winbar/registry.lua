@@ -1,8 +1,8 @@
 ---@module 'winbar.registry'
----@class WinBar.Registry
+---@class winbar.registry
 local M = {}
 
----@class WinBar.Component
+---@class winbar.component
 ---@field name string component identifier
 ---@field enabled fun(): boolean check if component should be rendered
 ---@field render fun(): string|nil render the component content
@@ -10,11 +10,11 @@ local M = {}
 ---@field spacing? boolean add space after component (default: true)
 
 -- component registry
----@type table<string, WinBar.Component>
+---@type table<string, winbar.component>
 M.registry = {}
 
 -- register a component
----@param c WinBar.Component
+---@param c winbar.component
 function M.register(c)
   if not c.name or not c.render then
     vim.notify('[winbar] Invalid component registration: missing name or render()', vim.log.levels.ERROR)
@@ -25,7 +25,7 @@ function M.register(c)
 end
 
 -- define all components
----@param config WinBar.Config
+---@param config winbar.config
 function M.setup(config)
   local components = require('winbar.components')
 
@@ -69,10 +69,10 @@ function M.setup(config)
       local parts = {}
 
       -- optional bug icon
-      if config.diagnostics.bug_icon then
-        -- FIX: remove bug_icon, show it only in minimalist.
-        table.insert(parts, '%#ErrorMsg#' .. config.diagnostics.bug_icon .. '%*')
-      end
+      -- if config.diagnostics.bug_icon then
+      --   -- FIX: remove bug_icon, show it only in minimalist.
+      --   table.insert(parts, '%#ErrorMsg#' .. config.diagnostics.bug_icon .. '%*')
+      -- end
 
       -- diagnostic detail
       if config.diagnostics.show_detail then

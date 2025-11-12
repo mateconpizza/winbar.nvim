@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-field
 
 ---@module 'winbar.util'
----@class WinBar.Utils
+---@class winbar.utils
 local M = {}
 
 -- get the relative path of a buffer name, falling back to filename only for home directory paths.
@@ -39,20 +39,21 @@ function M.augroup(name)
 end
 
 -- check if current buffer is a special buffer type or filetype that should be excluded.
----@param c WinBar.Config
-function M.is_special_buffer(c)
+---@param buftypes table<string>
+---@param filetypes table<string>
+function M.is_special_buffer(buftypes, filetypes)
   local buftype = vim.bo.buftype
   local filetype = vim.bo.filetype
 
   -- skip special buffer types
-  for _, bt in ipairs(c.exclude_buftypes) do
+  for _, bt in ipairs(buftypes) do
     if buftype == bt then
       return true
     end
   end
 
   -- skip special filetypes
-  for _, ft in ipairs(c.exclude_filetypes) do
+  for _, ft in ipairs(filetypes) do
     if filetype == ft then
       return true
     end

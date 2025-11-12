@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-field
 
 ---@module 'winbar.components'
----@class WinBar.Components
+---@class winbar.components
 local M = {}
 
 -- cache for performance
@@ -15,7 +15,7 @@ M.hl = require('winbar.highlight').highlights
 
 -- formats diagnostic counts in standard mode
 ---@param counts table
----@param icons WinBar.DiagnosticIcons
+---@param icons winbar.diagnosticIcons
 ---@return string
 local function format_standard(counts, icons)
   icons = icons or {}
@@ -73,7 +73,7 @@ function M.file_icon(filename)
 end
 
 -- lsp client names for current buffer as formatted status string.
----@param lsp WinBar.LspStatus
+---@param lsp winbar.lspStatus
 function M.lsp_status(lsp)
   if vim.o.columns < 60 then
     return ''
@@ -141,7 +141,7 @@ end
 -- formatted string of diagnostic counts for the current buffer.
 -- cached for 100ms.
 ---@param style? "standard"|"mini"
----@param icons WinBar.DiagnosticIcons
+---@param icons winbar.diagnosticIcons
 ---@return string
 function M.diagnostics(style, icons)
   local bufnr = vim.api.nvim_get_current_buf()

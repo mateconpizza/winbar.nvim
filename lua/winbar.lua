@@ -13,7 +13,7 @@ local H = require('winbar.highlight')
 local R = require('winbar.registry')
 local U = require('winbar.util')
 
----@class WinBar
+---@class winbar
 local M = {}
 
 M.config = require('winbar.config')
@@ -43,7 +43,7 @@ end
 
 -- render the winbar content based on configuration and current buffer state.
 function M.render()
-  if U.is_special_buffer(M.config) then
+  if U.is_special_buffer(M.config.exclusions.buftypes, M.config.exclusions.filetypes) then
     return ''
   end
 
@@ -99,7 +99,7 @@ function M.render()
   return table.concat(parts, ' ')
 end
 
----@param opts? WinBar.Config
+---@param opts? winbar.config
 function M.setup(opts)
   M.config = vim.tbl_deep_extend('force', vim.deepcopy(M.config), opts or {})
 
