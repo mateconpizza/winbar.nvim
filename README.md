@@ -1,9 +1,24 @@
-# winbar.nvim
+# WinBar
 
 <p align="center">
     <img src="./assets/screenshot.png"
     alt="Preview" style="width: 80%; max-width: 600px; height: auto;">
 </p>
+
+<p align="center">- Configurable and minimal Neovim WinBar -<p>
+
+## Components
+
+- [x] LSP Clients
+- [x] LSP Diagnostics
+- [x] File Icon
+- [x] Git Branch
+- [ ] Git Diff
+
+### Status
+
+- [x] Readonly status
+- [x] Modified status
 
 ## Installation
 
@@ -16,12 +31,14 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   -- or if using mini.icons/mini.nvim (WIP)
   -- dependencies = { "nvim-mini/mini.icons" },
+  ---@module 'winbar'
+  ---@type winbar.config
   opts = {}
 }
 ```
 
 <details>
-<summary>Show default configuration</summary>
+<summary>Default configuration</summary>
 
 ```lua
 require('winbar').setup({
@@ -29,46 +46,45 @@ require('winbar').setup({
   enabled = true, -- Enable the WinBar plugin
   file_icon = true, -- Show file icon (e.g., via nvim-web-devicons)
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
-
-  -- Exclusions
-  exclude_filetypes = { -- Filetypes where WinBar will not be shown
-    'aerial',
-    'dap-float',
-    'fugitive',
-    'oil',
-    'Trouble',
-    'lazy',
-    'man',
+  exclusions = {
+    filetypes = {
+      -- Filetypes where WinBar will not be shown
+      'aerial',
+      'dap-float',
+      'fugitive',
+      'oil',
+      'Trouble',
+      'lazy',
+      'man',
+    },
+    -- Buffer types where WinBar will not be shown
+    buftypes = {
+      'terminal',
+      'quickfix',
+      'help',
+      'nofile',
+      'nowrite',
+    },
   },
-  exclude_buftypes = { -- Buffer types where WinBar will not be shown
-    'terminal',
-    'quickfix',
-    'help',
-    'nofile',
-    'nowrite',
-  },
-
   -- Icons used across components
   icons = {
-    modified = '●', -- Shown for unsaved buffers
-    readonly = '', -- Shown for readonly buffers
-    git_branch = '', -- Git branch icon
+    modified = '[+]', -- Shown for unsaved buffers (choice: ●)
+    readonly = '[RO]', -- Shown for readonly buffers (choice: )
+    git_branch = '', -- Git branch icon (choice: )
   },
-
   -- Diagnostics configuration
   diagnostics = {
     enabled = true, -- Show diagnostics (LSP/linters)
     style = 'standard', -- Display style ("standard" or "mini")
-    bug_icon = '󰃤', -- Icon shown before diagnostic counts
+    bug_icon = '!', -- Icon shown before diagnostic counts (choice: 󰃤)
     show_detail = true, -- Show individual counts for each severity
     icons = { -- Diagnostic severity icons
-      error = '✗:',
+      error = 'e:',
       hint = 'h:',
       info = 'i:',
       warn = 'w:',
     },
   },
-
   -- LSP client name display
   lsp = {
     enabled = true, -- Enable LSP client display
@@ -77,10 +93,8 @@ require('winbar').setup({
       return clients
     end,
   },
-
   -- Git branch display
   git_branch = true, -- Show the current Git branch
-
   -- Layout of the WinBar
   layout = {
     left = { 'git_branch' }, -- Components aligned to the left
@@ -93,7 +107,6 @@ require('winbar').setup({
       'filename',
     },
   },
-
   -- Highlight groups
   styles = {
     winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
