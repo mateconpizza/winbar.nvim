@@ -14,7 +14,7 @@
 ---@class winbar.lspStatus
 ---@field enabled boolean? enable LSP client name display.
 ---@field separator? string? separator between multiple LSP clients.
----@field format fun(clients: string): string? custom formatter for client names.
+---@field format? fun(clients: string): string custom formatter for client names.
 
 ---@class winbar.icons
 ---@field modified string? icon for modified buffers.

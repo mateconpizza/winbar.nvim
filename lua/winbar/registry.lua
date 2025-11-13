@@ -34,10 +34,10 @@ function M.setup(config)
     name = 'git_branch',
     side = 'left',
     enabled = function()
-      return config.git_branch
+      return config.git.branch.enabled
     end,
     render = function()
-      return components.git_branch(config.icons.git_branch)
+      return components.git_branch(config.git.branch.icon)
     end,
   })
 
