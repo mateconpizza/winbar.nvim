@@ -22,15 +22,19 @@
 
 ## Installation
 
-Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+Install with your preferred `plug-in manager`.
+
+<details>
+<summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
 
 ```lua
 {
   'mateconpizza/winbar.nvim',
+  event = { 'BufReadPre', 'BufNewFile' },
   dependencies = {
     -- optional: add file icons to the winbar
     'nvim-tree/nvim-web-devicons',  -- or use 'nvim-mini/mini.icons' (WIP)
-    
+
     -- optional: show git diff stats in the winbar
     'lewis6991/gitsigns.nvim',      -- or use 'nvim-mini/mini.diff'
   },
@@ -39,6 +43,9 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
   opts = {},
 }
 ```
+</details>
+
+**Note**: You must call `require('winbar').setup()` to activate the plugin.
 
 <details>
 <summary>Default configuration</summary>
@@ -152,7 +159,3 @@ require('winbar').setup({
 | `WinBarGitDiffAdded`   | Added        | Git diff added lines highlight      |
 | `WinBarGitDiffChanged` | Changed      | Git diff changed lines highlight    |
 | `WinBarGitDiffRemoved` | Removed      | Git diff removed lines highlight    |
-
-## TODO
-
-- [ ] Migrate to `autocommand` event handler

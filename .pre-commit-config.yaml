@@ -23,5 +23,5 @@ repos:
           - "--input-file"
           - README.md
           - "--project-name"
-          - 'winbar.nvim'
+          - "winbar.nvim"
         pass_filenames: false
