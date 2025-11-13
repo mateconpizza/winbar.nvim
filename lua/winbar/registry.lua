@@ -126,9 +126,8 @@ function M.setup(config)
       return true
     end,
     render = function()
-      local bufname = vim.api.nvim_buf_get_name(0)
-      local filename = vim.fn.fnamemodify(bufname, ':t')
-      return components.filename(bufname, filename)
+      local bufnr = vim.api.nvim_get_current_buf()
+      return components.filename(bufnr)
     end,
 
     spacing = true, -- WIP

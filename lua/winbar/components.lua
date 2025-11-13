@@ -9,11 +9,13 @@ local M = {}
 -- cache for performance
 ---@class winbar.cache
 ---@field fileicon table<string, string> cached file icon
+---@field filename table<string, string> cached filename
 ---@field diagnostics table<string, string>  cached diagnostics per buffer
 ---@field git_diff fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)|nil  active git diff strategy function
 ---@field last_update integer                last update timestamp (nanoseconds or ms depending on usage)
 M.cache = {
   fileicon = {},
+  filename = {},
   diagnostics = {},
   git_branch = nil,
   git_diff = nil,
@@ -158,10 +160,16 @@ function M.diagnostics_mini(update_interval)
   return result
 end
 
----@param bufname string
----@param filename string
+---@param bufnr integer
 ---@return string
-function M.filename(bufname, filename)
+function M.filename(bufnr)
+  local cache, cache_key = M.cache.filename, tostring(bufnr)
+  local cached = U.get_cached(cache, cache_key, math.huge)
+  if cached then return cached end
+
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  local filename = vim.fn.fnamemodify(bufname, ':t')
+
   local all_buffers = vim.api.nvim_list_bufs()
   local duplicates = 0
   for _, buf in ipairs(all_buffers) do
@@ -172,6 +180,8 @@ function M.filename(bufname, filename)
   end
 
   if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
+
+  U.set_cached(cache, cache_key, filename)
 
   return filename
 end

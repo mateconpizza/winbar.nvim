@@ -80,9 +80,12 @@ function M.cleanup()
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
+      if not U.is_normal_buffer(bufnr) or not U.is_visible_in_normal_win(bufnr) then return end
+
       C.cache.diagnostics[bufnr] = nil
       C.cache['git_diff_' .. bufnr] = nil
       C.cache.fileicon[bufnr] = nil
+      C.cache.filename[bufnr] = nil
     end,
   })
 end
