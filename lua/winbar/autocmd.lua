@@ -82,6 +82,7 @@ function M.cleanup()
       local bufnr = args.buf
       C.cache.diagnostics[bufnr] = nil
       C.cache['git_diff_' .. bufnr] = nil
+      C.cache.fileicon[bufnr] = nil
     end,
   })
 end

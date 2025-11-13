@@ -113,9 +113,8 @@ function M.setup(config)
       return config.file_icon
     end,
     render = function()
-      local bufname = vim.api.nvim_buf_get_name(0)
-      local filename = vim.fn.fnamemodify(bufname, ':t')
-      return components.file_icon(filename)
+      local bufnr = vim.api.nvim_get_current_buf()
+      return components.file_icon(bufnr)
     end,
   })
 

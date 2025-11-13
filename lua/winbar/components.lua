@@ -8,10 +8,12 @@ local M = {}
 
 -- cache for performance
 ---@class winbar.cache
+---@field fileicon table<string, string> cached file icon
 ---@field diagnostics table<string, string>  cached diagnostics per buffer
 ---@field git_diff fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)|nil  active git diff strategy function
 ---@field last_update integer                last update timestamp (nanoseconds or ms depending on usage)
 M.cache = {
+  fileicon = {},
   diagnostics = {},
   git_branch = nil,
   git_diff = nil,
@@ -53,14 +55,35 @@ local function format_mini(counts)
   return table.concat(components, ' ')
 end
 
-function M.file_icon(filename)
-  -- FIX: add support for `mini.icons` https://github.com/echasnovski/mini.nvim
-  local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-  if has_devicons then
-    local icon, hl = devicons.get_icon(filename, vim.fn.fnamemodify(filename, ':e'), { default = true })
-    if icon and hl then return '%#' .. hl .. '#' .. icon .. '%*' end
+---@param bufnr integer
+---@return string
+function M.file_icon(bufnr)
+  local cache, cache_key = M.cache.fileicon, tostring(bufnr)
+  local cached = U.get_cached(cache, cache_key, math.huge)
+  if cached then return cached end
+
+  local icon, hl
+  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':t')
+  local filetype = vim.bo[bufnr].filetype
+
+  -- try `echasnovski/mini.nvim` first
+  local ok, mini = pcall(require, 'mini.icons')
+  if ok then
+    icon, hl = mini.get('filetype', filetype)
   end
-  return ''
+
+  -- fallback to `nvim-tree/nvim-web-devicons` if needed
+  if not icon or not hl then
+    local ok2, devicons = pcall(require, 'nvim-web-devicons')
+    if ok2 then
+      icon, hl = devicons.get_icon(filename, vim.fn.fnamemodify(filename, ':e'), { default = true })
+    end
+  end
+
+  local result = (icon and hl) and ('%#' .. hl .. '#' .. icon .. '%*') or ''
+  U.set_cached(cache, cache_key, result)
+
+  return result
 end
 
 -- lsp client names for current buffer as formatted status string.
