@@ -35,7 +35,7 @@ end
 -- create a autocommand group
 ---@param name string
 function M.augroup(name)
-  return vim.api.nvim_create_augroup('me_' .. name, { clear = true })
+  return vim.api.nvim_create_augroup('winbar_' .. name, { clear = true })
 end
 
 -- check if current buffer is a special buffer type or filetype that should be excluded.

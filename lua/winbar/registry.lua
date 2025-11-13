@@ -61,7 +61,8 @@ function M.setup(config)
       return config.diagnostics.enabled
     end,
     render = function()
-      local d = components.diagnostics(config.diagnostics.style or 'standard', config.diagnostics.icons)
+      local style = config.diagnostics.style or 'standard'
+      local d = components.diagnostics(style, config.diagnostics.icons, config.update_interval)
       if d == '' then
         return nil
       end

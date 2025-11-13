@@ -147,51 +147,47 @@ local function get_diagnostic_counts(bufnr)
 end
 
 -- formatted string of diagnostic counts for the current buffer.
--- cached for 100ms.
 ---@param style? "standard"|"mini"
 ---@param icons winbar.diagnosticIcons
+---@param update_interval integer
 ---@return string
-function M.diagnostics(style, icons)
+function M.diagnostics(style, icons, update_interval)
   local bufnr = vim.api.nvim_get_current_buf()
-  local current_time = vim.loop.hrtime()
-  local style_key = style or 'standard'
-
-  -- use a unique cache key per buffer/style combination
-  local cache_key = bufnr .. '_' .. style_key
+  local cache_key = bufnr .. '_' .. (style or 'standard')
   local cache = M.cache.diagnostics
+  local ttl = update_interval * 1e6 -- to nanoseconds
 
-  -- cache diagnostics for 100ms
-  if cache[cache_key] and (current_time - M.cache.last_update) < 100000000 then
-    return cache[cache_key]
+  local cached = U.get_cached(cache, cache_key, ttl)
+  if cached then
+    return cached
   end
 
   local counts = get_diagnostic_counts(bufnr)
-  local result = (style_key == 'mini') and format_mini(counts) or format_standard(counts, icons)
+  local result = (style == 'mini') and format_mini(counts) or format_standard(counts, icons)
 
-  cache[cache_key] = result
-  M.cache.last_update = current_time
-
+  U.set_cached(cache, cache_key, result)
   return result
 end
 
 -- formatted string of diagnostic counts in minimalist mode for the current buffer.
--- cached for 100ms.
 ---@return string a string with the counts using icons instead of prefixes
-function M.diagnostics_mini()
+---@param update_interval integer
+function M.diagnostics_mini(update_interval)
   local bufnr = vim.api.nvim_get_current_buf()
-  local current_time = vim.loop.hrtime()
-
-  -- Use separate cache key for mini mode
+  local cache = M.cache.diagnostics
   local cache_key = bufnr .. '_mini'
-  if M.cache.diagnostics[cache_key] and (current_time - M.cache.last_update) < 100000000 then
-    return M.cache.diagnostics[cache_key]
+  local ttl = update_interval * 1e6 -- to nanoseconds
+
+  local cached = M.get_cached(cache, cache_key, ttl)
+  if cached then
+    return cached
   end
 
   local counts = get_diagnostic_counts(bufnr)
   local result = format_mini(counts)
 
-  M.cache.diagnostics[cache_key] = result
-  M.cache.last_update = current_time
+  M.set_cached(cache, cache_key, result)
+
   return result
 end
 
