@@ -25,6 +25,28 @@
 Install with your preferred `plug-in manager`.
 
 <details>
+<summary>With <a href="https://github.com/nvim-mini/mini.deps">nvim-mini/mini.deps</a></summary>
+
+```lua
+require('mini.deps').later(function()
+  require('mini.deps').add({
+    source = 'mateconpizza/winbar.nvim',
+    depends = {
+      -- optional: add file icons to the winbar
+      'nvim-mini/mini.icons',       -- or 'nvim-tree/nvim-web-devicons'
+
+      -- optional: show git diff stats in the winbar
+      'nvim-mini/mini.diff',        -- or 'lewis6991/gitsigns.nvim'
+    },
+  })
+
+  require('winbar').setup()
+end)
+```
+
+</details>
+
+<details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
 
 ```lua
@@ -33,7 +55,7 @@ Install with your preferred `plug-in manager`.
   event = { 'BufReadPre', 'BufNewFile' },
   dependencies = {
     -- optional: add file icons to the winbar
-    'nvim-tree/nvim-web-devicons',  -- or use 'nvim-mini/mini.icons' (WIP)
+    'nvim-tree/nvim-web-devicons',  -- or use 'nvim-mini/mini.icons'
 
     -- optional: show git diff stats in the winbar
     'lewis6991/gitsigns.nvim',      -- or use 'nvim-mini/mini.diff'
@@ -43,12 +65,12 @@ Install with your preferred `plug-in manager`.
   opts = {},
 }
 ```
+
 </details>
 
-**Note**: You must call `require('winbar').setup()` to activate the plugin.
+<sub>**Note**: You must call `require('winbar').setup()` to activate the plugin.<sub>
 
-<details>
-<summary>Default configuration</summary>
+## Default Configuration
 
 ```lua
 -- There's no need to include this in setup(). It will be used automatically.
@@ -131,8 +153,6 @@ require('winbar').setup({
   },
   -- Highlight groups
   styles = {
-    winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
-    winbarnc = { link = 'Comment' }, -- Inactive window WinBar highlight
     lsp_status = { link = 'Comment' }, -- LSP client highlight
     readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
     modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
@@ -144,18 +164,14 @@ require('winbar').setup({
 })
 ```
 
-</details>
-
 ## Highlight groups
 
-| Group                  | Default      | Description                         |
-| ---------------------- | ------------ | ----------------------------------- |
-| `WinBar`               | StatusLine   | Active winbar highlight             |
-| `WinBarNC`             | StatusLineNC | Inactive window WinBar highlight    |
-| `WinBarGitBranch`      | Comment      | Git branch highlight                |
-| `WinBarLspStatus`      | Comment      | LSP client highlight                |
-| `WinBarReadonly`       | ErrorMsg     | Read-only indicator highlight       |
-| `WinBarModified`       | WarningMsg   | Modified buffer indicator highlight |
-| `WinBarGitDiffAdded`   | Added        | Git diff added lines highlight      |
-| `WinBarGitDiffChanged` | Changed      | Git diff changed lines highlight    |
-| `WinBarGitDiffRemoved` | Removed      | Git diff removed lines highlight    |
+| Group                  | Default    | Description                         |
+| ---------------------- | ---------- | ----------------------------------- |
+| `WinBarLspStatus`      | Comment    | LSP client highlight                |
+| `WinBarReadonly`       | ErrorMsg   | Read-only indicator highlight       |
+| `WinBarModified`       | WarningMsg | Modified buffer indicator highlight |
+| `WinBarGitBranch`      | Comment    | Git branch highlight                |
+| `WinBarGitDiffAdded`   | Added      | Git diff added lines highlight      |
+| `WinBarGitDiffChanged` | Changed    | Git diff changed lines highlight    |
+| `WinBarGitDiffRemoved` | Removed    | Git diff removed lines highlight    |
