@@ -113,9 +113,12 @@ return {
   styles = {
     winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
     winbarnc = { link = 'Comment' }, -- Inactive window WinBar highlight
-    git_branch = { link = 'Comment' }, -- Git branch highlight
     lsp_status = { link = 'Comment' }, -- LSP client highlight
-    readonly = { link = 'ErrorMsg' }, -- Readonly icon highlight
-    modified = { link = 'WarningMsg' }, -- Modified indicator highlight
+    readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
+    modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
+    git_branch = { link = 'Comment' }, -- Git branch highlight
+    diffadded = { link = 'Added' }, -- Git diff added lines highlight
+    diffchanged = { link = 'Changed' }, -- Git diff changed lines highlight
+    diffremoved = { link = 'Removed' }, -- Git diff removed lines highlight
   },
 }

@@ -19,12 +19,15 @@ local M = {}
 ---@field file_icon winbar.highlight?     -- WIP: highlight for file icon component
 -- stylua: ignore
 M.highlights = {
-  winbar      = { group = 'WinBar',           default = {} },
-  winbarnc    = { group = 'WinBarNC',         default = {} },
-  git_branch  = { group = 'WinBarGitBranch',  default = {} },
-  lsp_status  = { group = 'WinBarLspStatus',  default = {} },
-  readonly    = { group = 'WinBarReadonly',   default = {} },
-  modified    = { group = 'WinBarModified',   default = {} },
+  winbar      = { group = 'WinBar',               default = {} },
+  winbarnc    = { group = 'WinBarNC',             default = {} },
+  git_branch  = { group = 'WinBarGitBranch',      default = {} },
+  lsp_status  = { group = 'WinBarLspStatus',      default = {} },
+  readonly    = { group = 'WinBarReadonly',       default = {} },
+  modified    = { group = 'WinBarModified',       default = {} },
+  diffadded   = { group = 'WinBarGitDiffAdded',   default = {} },
+  diffchanged = { group = 'WinBarGitDiffChanged', default = {} },
+  diffremoved = { group = 'WinBarGitDiffRemoved', default = {} },
 }
 
 -- sets a highlight group
