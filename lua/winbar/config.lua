@@ -144,14 +144,12 @@ return {
   },
   -- Highlight groups
   styles = {
-    winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
-    winbarnc = { link = 'Comment' }, -- Inactive window WinBar highlight
     lsp_status = { link = 'Comment' }, -- LSP client highlight
     readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
     modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
     git_branch = { link = 'Comment' }, -- Git branch highlight
-    diffadded = { link = 'Added' }, -- Git diff added lines highlight
-    diffchanged = { link = 'Changed' }, -- Git diff changed lines highlight
-    diffremoved = { link = 'Removed' }, -- Git diff removed lines highlight
+    diffadded = { link = 'Comment' }, -- Git diff added lines highlight
+    diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
+    diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
   },
 }

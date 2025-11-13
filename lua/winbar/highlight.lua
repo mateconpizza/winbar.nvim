@@ -9,8 +9,6 @@ local M = {}
 ---@field default winbar.highlightAttrs   -- default highlight attributes for this group
 
 ---@class winbar.highlights
----@field winbar winbar.highlight?
----@field winbarnc winbar.highlight?
 ---@field git_branch winbar.highlight?    -- highlight for Git branch component
 ---@field lsp_status winbar.highlight?    -- highlight for LSP status indicator
 ---@field modified winbar.highlight?      -- highlight for modified buffer symbol
@@ -19,8 +17,6 @@ local M = {}
 ---@field file_icon winbar.highlight?     -- WIP: highlight for file icon component
 -- stylua: ignore
 M.highlights = {
-  winbar      = { group = 'WinBar',               default = {} },
-  winbarnc    = { group = 'WinBarNC',             default = {} },
   git_branch  = { group = 'WinBarGitBranch',      default = {} },
   lsp_status  = { group = 'WinBarLspStatus',      default = {} },
   readonly    = { group = 'WinBarReadonly',       default = {} },

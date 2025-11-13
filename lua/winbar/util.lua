@@ -46,6 +46,7 @@ end
 -- check if current buffer is a special buffer type or filetype that should be excluded.
 ---@param buftypes table<string>
 ---@param filetypes table<string>
+---@return boolean
 function M.is_special_buffer(buftypes, filetypes)
   local buftype = vim.bo.buftype
   local filetype = vim.bo.filetype
