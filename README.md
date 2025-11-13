@@ -13,7 +13,7 @@
 - [x] LSP Diagnostics
 - [x] File Icon
 - [x] Git Branch
-- [ ] Git Diff
+- [x] Git Diff
 
 ### Status
 
@@ -27,13 +27,16 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
   'mateconpizza/winbar.nvim',
-  -- optional for file icon support
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
-  -- or if using mini.icons/mini.nvim (WIP)
-  -- dependencies = { "nvim-mini/mini.icons" },
+  dependencies = {
+    -- optional: add file icons to the winbar
+    'nvim-tree/nvim-web-devicons',  -- or use 'nvim-mini/mini.icons' (WIP)
+    
+    -- optional: show git diff stats in the winbar
+    'lewis6991/gitsigns.nvim',      -- or use 'nvim-mini/mini.diff'
+  },
   ---@module 'winbar'
   ---@type winbar.config
-  opts = {}
+  opts = {},
 }
 ```
 
@@ -41,9 +44,11 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 <summary>Default configuration</summary>
 
 ```lua
+-- There's no need to include this in setup(). It will be used automatically.
 require('winbar').setup({
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
+  update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
   file_icon = true, -- Show file icon (e.g., via nvim-web-devicons)
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
@@ -70,7 +75,6 @@ require('winbar').setup({
   icons = {
     modified = '[+]', -- Shown for unsaved buffers (choice: ●)
     readonly = '[RO]', -- Shown for readonly buffers (choice: )
-    git_branch = '', -- Git branch icon (choice: )
   },
   -- Diagnostics configuration
   diagnostics = {
@@ -93,11 +97,22 @@ require('winbar').setup({
       return clients
     end,
   },
-  -- Git branch display
-  git_branch = true, -- Show the current Git branch
+  -- Git display
+  git = {
+    branch = {
+      enabled = true,
+      icon = '', -- Git branch icon (choice: )
+    },
+    diff = {
+      enabled = true,
+      added = '+',
+      changed = '~',
+      removed = '-',
+    },
+  },
   -- Layout of the WinBar
   layout = {
-    left = { 'git_branch' }, -- Components aligned to the left
+    left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
     right = { -- Components aligned to the right
       'lsp_status',
       'diagnostics',
@@ -111,10 +126,13 @@ require('winbar').setup({
   styles = {
     winbar = { link = 'StatusLine' }, -- Active window WinBar highlight
     winbarnc = { link = 'Comment' }, -- Inactive window WinBar highlight
-    git_branch = { link = 'Comment' }, -- Git branch highlight
     lsp_status = { link = 'Comment' }, -- LSP client highlight
-    readonly = { link = 'ErrorMsg' }, -- Readonly icon highlight
-    modified = { link = 'WarningMsg' }, -- Modified indicator highlight
+    readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
+    modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
+    git_branch = { link = 'Comment' }, -- Git branch highlight
+    diffadded = { link = 'Added' }, -- Git diff added lines highlight
+    diffchanged = { link = 'Changed' }, -- Git diff changed lines highlight
+    diffremoved = { link = 'Removed' }, -- Git diff removed lines highlight
   },
 })
 ```
@@ -123,11 +141,18 @@ require('winbar').setup({
 
 ## Highlight groups
 
-| Group             | Default      | Description                              |
-| ----------------- | ------------ | ---------------------------------------- |
-| `WinBar`          | StatusLine   | Active winbar highlight                  |
-| `WinBarNC`        | StatusLineNC | Winbar highlight when buffer loses focus |
-| `WinBarGitBranch` | Comment      | Git branch highlight                     |
-| `WinBarLspStatus` | Comment      | LSP status highlight                     |
-| `WinBarReadonly`  | ErrorMsg     | LSP status highlight                     |
-| `WinBarModified`  | WarningMsg   | LSP status highlight                     |
+| Group                  | Default      | Description                         |
+| ---------------------- | ------------ | ----------------------------------- |
+| `WinBar`               | StatusLine   | Active winbar highlight             |
+| `WinBarNC`             | StatusLineNC | Inactive window WinBar highlight    |
+| `WinBarGitBranch`      | Comment      | Git branch highlight                |
+| `WinBarLspStatus`      | Comment      | LSP client highlight                |
+| `WinBarReadonly`       | ErrorMsg     | Read-only indicator highlight       |
+| `WinBarModified`       | WarningMsg   | Modified buffer indicator highlight |
+| `WinBarGitDiffAdded`   | Added        | Git diff added lines highlight      |
+| `WinBarGitDiffChanged` | Changed      | Git diff changed lines highlight    |
+| `WinBarGitDiffRemoved` | Removed      | Git diff removed lines highlight    |
+
+## TODO
+
+- [ ] Migrate to `autocommand` event handler
