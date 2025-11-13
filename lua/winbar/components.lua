@@ -2,16 +2,15 @@
 
 local U = require('winbar.util')
 
-local function has_plugin(name)
-  local ok, _ = pcall(require, name)
-  return ok
-end
-
 ---@module 'winbar.components'
 ---@class winbar.components
 local M = {}
 
 -- cache for performance
+---@class winbar.cache
+---@field diagnostics table<string, string>  cached diagnostics per buffer
+---@field git_diff fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)|nil  active git diff strategy function
+---@field last_update integer                last update timestamp (nanoseconds or ms depending on usage)
 M.cache = {
   diagnostics = {},
   git_branch = nil,
@@ -29,18 +28,10 @@ local function format_standard(counts, icons)
   icons = icons or {}
   local components = {}
 
-  if counts.errors > 0 then
-    table.insert(components, '%#DiagnosticError#' .. icons.error .. counts.errors .. '%*')
-  end
-  if counts.warnings > 0 then
-    table.insert(components, '%#DiagnosticWarn#' .. icons.warn .. counts.warnings .. '%*')
-  end
-  if counts.info > 0 then
-    table.insert(components, '%#DiagnosticInfo#' .. icons.info .. counts.info .. '%*')
-  end
-  if counts.hints > 0 then
-    table.insert(components, '%#DiagnosticHint#' .. icons.hint .. counts.hints .. '%*')
-  end
+  if counts.errors > 0 then table.insert(components, '%#DiagnosticError#' .. icons.error .. counts.errors .. '%*') end
+  if counts.warnings > 0 then table.insert(components, '%#DiagnosticWarn#' .. icons.warn .. counts.warnings .. '%*') end
+  if counts.info > 0 then table.insert(components, '%#DiagnosticInfo#' .. icons.info .. counts.info .. '%*') end
+  if counts.hints > 0 then table.insert(components, '%#DiagnosticHint#' .. icons.hint .. counts.hints .. '%*') end
 
   return table.concat(components, ' ')
 end
@@ -52,30 +43,22 @@ local function format_mini(counts)
   local icon = '󰃤'
   local components = {}
 
-  if counts.errors > 0 then
-    table.insert(components, '%#DiagnosticError#' .. icon .. ' ' .. counts.errors .. '%*')
-  end
+  if counts.errors > 0 then table.insert(components, '%#DiagnosticError#' .. icon .. ' ' .. counts.errors .. '%*') end
   if counts.warnings > 0 then
     table.insert(components, '%#DiagnosticWarn#' .. icon .. ' ' .. counts.warnings .. '%*')
   end
-  if counts.info > 0 then
-    table.insert(components, '%#DiagnosticInfo#' .. icon .. ' ' .. counts.info .. '%*')
-  end
-  if counts.hints > 0 then
-    table.insert(components, '%#DiagnosticHint#' .. icon .. ' ' .. counts.hints .. '%*')
-  end
+  if counts.info > 0 then table.insert(components, '%#DiagnosticInfo#' .. icon .. ' ' .. counts.info .. '%*') end
+  if counts.hints > 0 then table.insert(components, '%#DiagnosticHint#' .. icon .. ' ' .. counts.hints .. '%*') end
 
   return table.concat(components, ' ')
 end
 
 function M.file_icon(filename)
-  -- FIX: add for `mini.icons` https://github.com/echasnovski/mini.nvim
+  -- FIX: add support for `mini.icons` https://github.com/echasnovski/mini.nvim
   local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
   if has_devicons then
     local icon, hl = devicons.get_icon(filename, vim.fn.fnamemodify(filename, ':e'), { default = true })
-    if icon and hl then
-      return '%#' .. hl .. '#' .. icon .. '%*'
-    end
+    if icon and hl then return '%#' .. hl .. '#' .. icon .. '%*' end
   end
   return ''
 end
@@ -83,14 +66,10 @@ end
 -- lsp client names for current buffer as formatted status string.
 ---@param lsp winbar.lspStatus
 function M.lsp_status(lsp)
-  if vim.o.columns < 60 then
-    return ''
-  end
+  if vim.o.columns < 60 then return '' end
 
   local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then
-    return ''
-  end
+  if #clients == 0 then return '' end
 
   local names = {}
   for _, client in pairs(clients) do
@@ -100,37 +79,6 @@ function M.lsp_status(lsp)
   local result = lsp.format(table.concat(names, lsp.separator))
 
   return '%#' .. M.hl.lsp_status.group .. '#' .. result .. '%*'
-end
-
--- current git branch name as formatted string with icon, cached for performance.
----@param icon string
-function M.git_branch(icon)
-  if M.cache.git_branch then
-    return M.cache.git_branch
-  end
-
-  -- check if git is available
-  if vim.fn.executable('git') ~= 1 then
-    M.cache.git_branch = ''
-    return ''
-  end
-
-  -- check if inside a git repository
-  local is_git_repo = vim.fn.system({ 'git', 'rev-parse', '--is-inside-work-tree' })
-  if vim.v.shell_error ~= 0 or not is_git_repo:match('true') then
-    M.cache.git_branch = ''
-    return ''
-  end
-
-  -- get current branch name
-  local branch = vim.fn.system({ 'git', 'rev-parse', '--abbrev-ref', 'HEAD' }):gsub('\n', '')
-  if vim.v.shell_error ~= 0 or branch == '' then
-    M.cache.git_branch = ''
-    return ''
-  end
-
-  M.cache.git_branch = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
-  return M.cache.git_branch
 end
 
 -- diagnostic counts for the current buffer
@@ -153,14 +101,12 @@ end
 ---@return string
 function M.diagnostics(style, icons, update_interval)
   local bufnr = vim.api.nvim_get_current_buf()
-  local cache_key = bufnr .. '_' .. (style or 'standard')
+  local cache_key = tostring(bufnr)
   local cache = M.cache.diagnostics
   local ttl = update_interval * 1e6 -- to nanoseconds
 
   local cached = U.get_cached(cache, cache_key, ttl)
-  if cached then
-    return cached
-  end
+  if cached then return cached end
 
   local counts = get_diagnostic_counts(bufnr)
   local result = (style == 'mini') and format_mini(counts) or format_standard(counts, icons)
@@ -174,14 +120,12 @@ end
 ---@param update_interval integer
 function M.diagnostics_mini(update_interval)
   local bufnr = vim.api.nvim_get_current_buf()
+  local cache_key = tostring(bufnr)
   local cache = M.cache.diagnostics
-  local cache_key = bufnr .. '_mini'
   local ttl = update_interval * 1e6 -- to nanoseconds
 
   local cached = M.get_cached(cache, cache_key, ttl)
-  if cached then
-    return cached
-  end
+  if cached then return cached end
 
   local counts = get_diagnostic_counts(bufnr)
   local result = format_mini(counts)
@@ -200,15 +144,11 @@ function M.filename(bufname, filename)
   for _, buf in ipairs(all_buffers) do
     if vim.api.nvim_buf_is_loaded(buf) then
       local name = vim.api.nvim_buf_get_name(buf)
-      if vim.fn.fnamemodify(name, ':t') == filename then
-        duplicates = duplicates + 1
-      end
+      if vim.fn.fnamemodify(name, ':t') == filename then duplicates = duplicates + 1 end
     end
   end
 
-  if duplicates > 1 then
-    filename = require('winbar.util').get_relative_path(bufname)
-  end
+  if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
 
   return filename
 end
@@ -223,119 +163,78 @@ function M.modified(icon)
   return '%#' .. M.hl.modified.group .. '#' .. icon .. '%*'
 end
 
+-- current git branch name as formatted string with icon, cached for performance.
 ---@param bufnr integer
----@param update_interval integer
----@param c winbar.gitdiff
-function M.git_diff_signs(bufnr, update_interval, c)
-  local cache_key = 'git_diff_' .. bufnr
+---@param icon string
+function M.git_branch(bufnr, icon)
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  if bufname == '' then return '' end
+
+  -- derive directory key (repository context)
+  local dir = vim.fn.fnamemodify(bufname, ':h')
+  local cache_key = 'git_branch_' .. dir
   local cache = M.cache
-  local ttl = update_interval * 1e6 -- to nanoseconds
+  local cached = U.get_cached(cache, cache_key, math.huge)
+  if cached then return cached end
 
-  local cached = U.get_cached(cache, cache_key, ttl)
-  if cached then
-    return cached
+  -- check for external plugin
+  local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
+  if branch ~= nil then
+    local result = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
+    U.set_cached(cache, cache_key, result)
+    return result
   end
 
-  local ok, gitsigns = pcall(require, 'gitsigns')
-  if not ok then
-    return ''
-  end
+  branch = U.git_branch()
+  if not branch then return '' end
 
-  local hunks = gitsigns.get_hunks(bufnr)
-  if not hunks or #hunks == 0 then
-    return ''
-  end
-
-  local added, changed, removed = 0, 0, 0
-  for _, hunk in ipairs(hunks) do
-    if hunk.type == 'add' then
-      added = added + hunk.added.count
-    elseif hunk.type == 'change' then
-      changed = changed + hunk.added.count + hunk.removed.count
-    elseif hunk.type == 'delete' then
-      removed = removed + hunk.removed.count
-    end
-  end
-
-  local result = M.format_gitdiff_output(c, { added = added, changed = changed, removed = removed })
+  local result = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
   U.set_cached(cache, cache_key, result)
-
   return result
 end
 
 ---@param bufnr integer
 ---@param update_interval integer
 ---@param c winbar.gitdiff
-function M.git_diff_stats_mini(bufnr, update_interval, c)
+function M.git_diff(bufnr, update_interval, c)
   local cache_key = 'git_diff_' .. bufnr
   local cache = M.cache
   local ttl = update_interval * 1e6 -- to nanoseconds
 
   local cached = U.get_cached(cache, cache_key, ttl)
-  if cached then
-    return cached
-  end
+  if cached then return cached end
 
-  local ok, MiniDiff = pcall(require, 'mini.diff')
-  if not ok then
-    return ''
-  end
+  local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
+  if diffstat == nil then return '' end
 
-  local data = MiniDiff.get_buf_data(bufnr)
-  if not data then
-    return ''
-  end
-
-  local hunks = data.summary
-  if not hunks then
-    return ''
-  end
-
-  local added = hunks.add or 0
-  local changed = hunks.change or 0
-  local removed = hunks.delete or 0
-
-  local result = M.format_gitdiff_output(c, { added = added, changed = changed, removed = removed })
-  U.set_cached(cache, cache_key, result)
-
-  return result
+  return M.format_gitdiff_output(c, diffstat)
 end
 
----@return fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)
-function M.get_gitdiff_strategy()
-  if M.cache.git_diff then
-    return M.cache.git_diff
-  end
+-- parse a git diff stat string
+---@param diffstat string
+---@return table<string, integer>
+local function parse_diffstat(diffstat)
+  local stats = { added = 0, changed = 0, removed = 0 }
 
-  local strategies = {
-    { 'gitsigns', M.git_diff_signs },
-    { 'mini.diff', M.git_diff_stats_mini },
-  }
-
-  vim.api.nvim_create_autocmd('BufDelete', {
-    callback = function(args)
-      M.cache['git_diff_' .. args.buf] = nil
-    end,
-  })
-
-  for _, s in ipairs(strategies) do
-    if has_plugin(s[1]) then
-      M.cache.git_diff = s[2]
-      return M.cache.git_diff
+  -- Match patterns like +22, ~30, -1 in any order
+  for sign, num in diffstat:gmatch('([+~%-])(%d+)') do
+    num = tonumber(num)
+    if sign == '+' then
+      stats.added = num
+    elseif sign == '~' then
+      stats.changed = num
+    elseif sign == '-' then
+      stats.removed = num
     end
   end
 
-  -- default
-  M.cache.git_diff = function()
-    return ''
-  end
-
-  return M.cache.git_diff
+  return stats
 end
 
 ---@param c winbar.gitdiff
----@param hunks table<string, integer>
-function M.format_gitdiff_output(c, hunks)
+---@param diffstat string
+function M.format_gitdiff_output(c, diffstat)
+  local hunks = parse_diffstat(diffstat)
   local h = M.hl
   local parts = {}
   if hunks.added > 0 then

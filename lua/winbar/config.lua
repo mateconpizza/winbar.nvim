@@ -83,11 +83,12 @@ return {
     },
     -- Buffer types where WinBar will not be shown
     buftypes = {
-      'terminal',
-      'quickfix',
       'help',
+      'netrw',
       'nofile',
       'nowrite',
+      'quickfix',
+      'terminal',
     },
   },
   -- Icons used across components

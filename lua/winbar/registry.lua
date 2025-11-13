@@ -37,7 +37,8 @@ function M.setup(config)
       return config.git.branch.enabled
     end,
     render = function()
-      return components.git_branch(config.git.branch.icon)
+      local bufnr = vim.api.nvim_get_current_buf()
+      return components.git_branch(bufnr, config.git.branch.icon)
     end,
   })
 
@@ -63,9 +64,7 @@ function M.setup(config)
     render = function()
       local style = config.diagnostics.style or 'standard'
       local d = components.diagnostics(style, config.diagnostics.icons, config.update_interval)
-      if d == '' then
-        return nil
-      end
+      if d == '' then return nil end
 
       local parts = {}
 
@@ -76,9 +75,7 @@ function M.setup(config)
       -- end
 
       -- diagnostic detail
-      if config.diagnostics.show_detail then
-        table.insert(parts, d)
-      end
+      if config.diagnostics.show_detail then table.insert(parts, d) end
 
       return table.concat(parts, ' ')
     end,
@@ -146,9 +143,8 @@ function M.setup(config)
       return config.git.diff.enabled
     end,
     render = function()
-      local gitdiff = components.get_gitdiff_strategy()
       local bufnr = vim.api.nvim_get_current_buf()
-      return gitdiff(bufnr, config.update_interval, config.git.diff)
+      return components.git_diff(bufnr, config.update_interval, config.git.diff)
     end,
   })
 end

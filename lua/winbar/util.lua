@@ -1,4 +1,6 @@
 ---@diagnostic disable: undefined-field
+local uv = vim.uv or vim.loop
+local last_redraw = 0
 
 ---@module 'winbar.util'
 ---@class winbar.utils
@@ -9,11 +11,14 @@ local M = {}
 ---@return string
 function M.get_relative_path(bufname)
   local relative_path = vim.fn.fnamemodify(bufname, ':~:.')
-  if relative_path:sub(1, 1) == '~' then
-    relative_path = vim.fn.fnamemodify(bufname, ':t')
-  end
+  if relative_path:sub(1, 1) == '~' then relative_path = vim.fn.fnamemodify(bufname, ':t') end
 
   return relative_path
+end
+
+-- skip special or unlisted buffers
+function M.is_normal_buffer(bufnr)
+  return vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype == '' and vim.bo[bufnr].buflisted
 end
 
 -- check if a buffer is visible in any non-floating window.
@@ -47,16 +52,12 @@ function M.is_special_buffer(buftypes, filetypes)
 
   -- skip special buffer types
   for _, bt in ipairs(buftypes) do
-    if buftype == bt then
-      return true
-    end
+    if buftype == bt then return true end
   end
 
   -- skip special filetypes
   for _, ft in ipairs(filetypes) do
-    if filetype == ft then
-      return true
-    end
+    if filetype == ft then return true end
   end
 
   return false
@@ -68,11 +69,9 @@ end
 ---@param ttl number  -- time to live in nanoseconds
 ---@return string|nil
 function M.get_cached(cache, key, ttl)
-  local now = vim.loop.hrtime()
+  local now = uv.hrtime()
   local entry = cache[key]
-  if entry and (now - entry.time) < ttl then
-    return entry.value
-  end
+  if entry and (now - entry.time) < ttl then return entry.value end
   return nil
 end
 
@@ -80,7 +79,32 @@ end
 ---@param key string
 ---@param value string
 function M.set_cached(cache, key, value)
-  cache[key] = { value = value, time = vim.loop.hrtime() }
+  cache[key] = { value = value, time = uv.hrtime() }
+end
+
+-- redraws the statusline/winbar with a throttle interval.
+function M.throttled_redraw(interval_ms)
+  local now = uv.hrtime()
+  if (now - last_redraw) / 1e6 > interval_ms then
+    last_redraw = now
+    vim.cmd('redrawstatus')
+  end
+end
+
+---@return string|nil
+function M.git_branch()
+  -- check if git is available
+  if vim.fn.executable('git') ~= 1 then return nil end
+
+  -- check if inside a git repository
+  local is_git_repo = vim.fn.system({ 'git', 'rev-parse', '--is-inside-work-tree' })
+  if vim.v.shell_error ~= 0 or not is_git_repo:match('true') then return nil end
+
+  -- get current branch name
+  local branch = vim.fn.system({ 'git', 'rev-parse', '--abbrev-ref', 'HEAD' }):gsub('\n', '')
+  if vim.v.shell_error ~= 0 or branch == '' then return nil end
+
+  return branch
 end
 
 return M
