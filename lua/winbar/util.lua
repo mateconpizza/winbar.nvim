@@ -62,4 +62,25 @@ function M.is_special_buffer(buftypes, filetypes)
   return false
 end
 
+-- simple time-based cache with nanosecond precision
+---@param cache table
+---@param key string
+---@param ttl number  -- time to live in nanoseconds
+---@return string|nil
+function M.get_cached(cache, key, ttl)
+  local now = vim.loop.hrtime()
+  local entry = cache[key]
+  if entry and (now - entry.time) < ttl then
+    return entry.value
+  end
+  return nil
+end
+
+---@param cache table
+---@param key string
+---@param value string
+function M.set_cached(cache, key, value)
+  cache[key] = { value = value, time = vim.loop.hrtime() }
+end
+
 return M

@@ -1,5 +1,12 @@
 ---@diagnostic disable: undefined-field
 
+local U = require('winbar.util')
+
+local function has_plugin(name)
+  local ok, _ = pcall(require, name)
+  return ok
+end
+
 ---@module 'winbar.components'
 ---@class winbar.components
 local M = {}
@@ -8,6 +15,7 @@ local M = {}
 M.cache = {
   diagnostics = {},
   git_branch = nil,
+  git_diff = nil,
   last_update = 0,
 }
 
@@ -217,6 +225,134 @@ end
 ---@param icon string
 function M.modified(icon)
   return '%#' .. M.hl.modified.group .. '#' .. icon .. '%*'
+end
+
+---@param bufnr integer
+---@param update_interval integer
+---@param c winbar.gitdiff
+function M.git_diff_signs(bufnr, update_interval, c)
+  local cache_key = 'git_diff_' .. bufnr
+  local cache = M.cache
+  local ttl = update_interval * 1e6 -- to nanoseconds
+
+  local cached = U.get_cached(cache, cache_key, ttl)
+  if cached then
+    return cached
+  end
+
+  local ok, gitsigns = pcall(require, 'gitsigns')
+  if not ok then
+    return ''
+  end
+
+  local hunks = gitsigns.get_hunks(bufnr)
+  if not hunks or #hunks == 0 then
+    return ''
+  end
+
+  local added, changed, removed = 0, 0, 0
+  for _, hunk in ipairs(hunks) do
+    if hunk.type == 'add' then
+      added = added + hunk.added.count
+    elseif hunk.type == 'change' then
+      changed = changed + hunk.added.count + hunk.removed.count
+    elseif hunk.type == 'delete' then
+      removed = removed + hunk.removed.count
+    end
+  end
+
+  local result = M.format_gitdiff_output(c, { added = added, changed = changed, removed = removed })
+  U.set_cached(cache, cache_key, result)
+
+  return result
+end
+
+---@param bufnr integer
+---@param update_interval integer
+---@param c winbar.gitdiff
+function M.git_diff_stats_mini(bufnr, update_interval, c)
+  local cache_key = 'git_diff_' .. bufnr
+  local cache = M.cache
+  local ttl = update_interval * 1e6 -- to nanoseconds
+
+  local cached = U.get_cached(cache, cache_key, ttl)
+  if cached then
+    return cached
+  end
+
+  local ok, MiniDiff = pcall(require, 'mini.diff')
+  if not ok then
+    return ''
+  end
+
+  local data = MiniDiff.get_buf_data(bufnr)
+  if not data then
+    return ''
+  end
+
+  local hunks = data.summary
+  if not hunks then
+    return ''
+  end
+
+  local added = hunks.add or 0
+  local changed = hunks.change or 0
+  local removed = hunks.delete or 0
+
+  local result = M.format_gitdiff_output(c, { added = added, changed = changed, removed = removed })
+  U.set_cached(cache, cache_key, result)
+
+  return result
+end
+
+---@return fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)
+function M.get_gitdiff_strategy()
+  if M.cache.git_diff then
+    return M.cache.git_diff
+  end
+
+  local strategies = {
+    { 'gitsigns', M.git_diff_signs },
+    { 'mini.diff', M.git_diff_stats_mini },
+  }
+
+  vim.api.nvim_create_autocmd('BufDelete', {
+    callback = function(args)
+      M.cache['git_diff_' .. args.buf] = nil
+    end,
+  })
+
+  for _, s in ipairs(strategies) do
+    if has_plugin(s[1]) then
+      M.cache.git_diff = s[2]
+      return M.cache.git_diff
+    end
+  end
+
+  -- default
+  M.cache.git_diff = function()
+    return ''
+  end
+
+  return M.cache.git_diff
+end
+
+---@param c winbar.gitdiff
+---@param hunks table<string, integer>
+function M.format_gitdiff_output(c, hunks)
+  local h = M.hl
+  local parts = {}
+  if hunks.added > 0 then
+    table.insert(parts, '%#' .. h.diffadded.group .. '#' .. string.format('%s%d', c.added, hunks.added) .. '%*')
+  end
+  if hunks.changed > 0 then
+    table.insert(parts, '%#' .. h.diffchanged.group .. '#' .. string.format('%s%d', c.changed, hunks.changed) .. '%*')
+  end
+  if hunks.removed > 0 then
+    table.insert(parts, '%#' .. h.diffremoved.group .. '#' .. string.format('%s%d', c.removed, hunks.removed) .. '%*')
+  end
+
+  return table.concat(parts, ' ')
 end
 
 return M

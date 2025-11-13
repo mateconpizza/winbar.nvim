@@ -136,6 +136,20 @@ function M.setup(config)
 
     spacing = true, -- WIP
   })
+
+  -- git diff
+  M.register({
+    name = 'git_diff',
+    side = 'left',
+    enabled = function()
+      return config.git.diff.enabled
+    end,
+    render = function()
+      local gitdiff = components.get_gitdiff_strategy()
+      local bufnr = vim.api.nvim_get_current_buf()
+      return gitdiff(bufnr, config.update_interval, config.git.diff)
+    end,
+  })
 end
 
 return M
