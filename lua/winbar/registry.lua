@@ -96,29 +96,16 @@ function M.setup(config)
     end,
   })
 
-  -- file icon component
-  M.register({
-    name = 'file_icon',
-    side = 'right',
-    enabled = function()
-      return config.file_icon
-    end,
-    render = function()
-      local bufnr = vim.api.nvim_get_current_buf()
-      return components.file_icon(bufnr)
-    end,
-  })
-
   -- filename component
   M.register({
     name = 'filename',
     side = 'right',
     enabled = function()
-      return true
+      return config.filename.enabled
     end,
     render = function()
       local bufnr = vim.api.nvim_get_current_buf()
-      return components.filename(bufnr)
+      return components.filename(bufnr, config.filename)
     end,
 
     spacing = true, -- WIP

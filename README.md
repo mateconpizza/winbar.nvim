@@ -78,7 +78,13 @@ require('winbar').setup({
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
   update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
-  file_icon = true, -- Show file icon (e.g., via nvim-web-devicons)
+  filename = {
+    enabled = true,
+    icon = true,  -- Show file icon (e.g., via nvim-web-devicons)
+    format = function(filename) -- Custom formatter for the filename.
+      return filename
+    end,
+  },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
     filetypes = {
@@ -93,11 +99,12 @@ require('winbar').setup({
     },
     -- Buffer types where WinBar will not be shown
     buftypes = {
-      'terminal',
-      'quickfix',
       'help',
+      'netrw',
       'nofile',
       'nowrite',
+      'quickfix',
+      'terminal',
     },
   },
   -- Icons used across components
@@ -156,9 +163,9 @@ require('winbar').setup({
     readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
     modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
     git_branch = { link = 'Comment' }, -- Git branch highlight
-    diffadded = { link = 'Added' }, -- Git diff added lines highlight
-    diffchanged = { link = 'Changed' }, -- Git diff changed lines highlight
-    diffremoved = { link = 'Removed' }, -- Git diff removed lines highlight
+    diffadded = { link = 'Comment' }, -- Git diff added lines highlight
+    diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
+    diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
   },
 })
 ```

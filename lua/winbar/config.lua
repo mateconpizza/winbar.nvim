@@ -9,7 +9,7 @@
 ---@field style 'mini' | 'standard'? diagnostics style (standard or mini).
 ---@field icons winbar.diagnosticIcons?
 
----@class winbar.lspStatus
+---@class winbar.lspClients
 ---@field enabled boolean? enable LSP client name display.
 ---@field separator? string? separator between multiple LSP clients.
 ---@field format? fun(clients: string): string custom formatter for client names.
@@ -52,12 +52,18 @@
 ---@field branch winbar.gitbranch? git branch configuration
 ---@field diff winbar.gitdiff? git diff configuration
 
+---@class winbar.filename
+---@field enabled boolean?
+---@field icon boolean? -- Show file icon (e.g., via nvim-web-devicons)
+---@field format? fun(clients: string): string custom formatter for the filename.
+
 ---@class (exact) winbar.config
 ---@field enabled boolean?
 ---@field update_interval integer? interval in milliseconds
 ---@field file_icon boolean? show file icon.
+---@field filename winbar.filename
 ---@field diagnostics winbar.diagnostic? diagnostics.
----@field lsp winbar.lspStatus? LSP client name display..
+---@field lsp winbar.lspClients? LSP client name display..
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
 ---@field exclusions table<string, string[]>?
@@ -68,7 +74,13 @@ return {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
   update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
-  file_icon = true, -- Show file icon (e.g., via nvim-web-devicons)
+  filename = {
+    enabled = true,
+    icon = true, -- Show file icon (e.g., via nvim-web-devicons)
+    format = function(filename) -- Custom formatter for the filename.
+      return filename
+    end,
+  },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
     filetypes = {

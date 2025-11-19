@@ -84,7 +84,7 @@ function M.file_icon(bufnr)
 end
 
 -- lsp client names for current buffer as formatted status string.
----@param lsp winbar.lspStatus
+---@param lsp winbar.lspClients
 function M.lsp_status(lsp)
   if vim.o.columns < 60 then return '' end
 
@@ -136,8 +136,9 @@ function M.diagnostics(style, icons, update_interval)
 end
 
 ---@param bufnr integer
+---@param fn winbar.filename
 ---@return string
-function M.filename(bufnr)
+function M.filename(bufnr, fn)
   local cache, cache_key = M.cache.filename, tostring(bufnr)
   local cached = U.get_cached(cache, cache_key, math.huge)
   if cached then return cached end
@@ -154,8 +155,16 @@ function M.filename(bufnr)
     end
   end
 
+  -- check if duplicate name
   if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
 
+  -- add icon
+  if fn.icon then
+    local icon = M.file_icon(bufnr)
+    filename = icon .. ' ' .. filename
+  end
+
+  filename = fn.format(filename)
   U.set_cached(cache, cache_key, filename)
 
   return filename
