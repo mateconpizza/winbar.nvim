@@ -20,8 +20,9 @@
 ---@field modified string? icon for modified buffers.
 ---@field readonly string? icon for readonly buffers.
 
----@class winbar.Layout
+---@class winbar.layout
 ---@field left string[]? ordered list of left-aligned component names.
+---@field center string[]? ordered list of center component names.
 ---@field right string[]? ordered list of right-aligned component names.
 
 ---@class winbar.userHighlights
@@ -63,6 +64,7 @@
 ---@field show_single_buffer boolean? show with single buffer.
 ---@field exclusions table<string, string[]>?
 ---@field git winbar.git?
+---@field layout winbar.layout?
 ---@field styles winbar.userHighlights? winbar highlights.
 return {
   -- Core behavior
@@ -133,6 +135,7 @@ return {
   -- Layout of the WinBar
   layout = {
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
+    center = {}, -- Components aligned to the center
     right = { -- Components aligned to the right
       'lsp_status',
       'diagnostics',

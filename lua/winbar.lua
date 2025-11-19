@@ -49,7 +49,7 @@ function M.render()
   -- build
   local parts = {}
 
-  -- render based on config layout config
+  -- left section
   for _, name in ipairs(M.config.layout.left) do
     local component = reg().registry[name]
     if component and component.enabled() then
@@ -58,8 +58,18 @@ function M.render()
     end
   end
 
+  -- center section --
   table.insert(parts, '%=')
+  for _, name in ipairs(M.config.layout.center) do
+    local component = reg().registry[name]
+    if component and component.enabled() then
+      local content = component.render()
+      if content and content ~= '' then table.insert(parts, content) end
+    end
+  end
 
+  -- right section --
+  table.insert(parts, '%=')
   for _, name in ipairs(M.config.layout.right) do
     local component = reg().registry[name]
     if component and component.enabled() then

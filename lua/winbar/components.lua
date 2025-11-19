@@ -125,6 +125,7 @@ end
 ---@param update_interval integer
 ---@return string
 function M.diagnostics(style, icons, update_interval)
+  if vim.o.columns < 60 then return '' end
   local bufnr = vim.api.nvim_get_current_buf()
   local cache_key = tostring(bufnr)
   local cache = M.cache.diagnostics
