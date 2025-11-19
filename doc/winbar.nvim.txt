@@ -1,4 +1,4 @@
-*winbar.nvim.txt*        For NVIM v0.11.5        Last change: 2025 November 13
+*winbar.nvim.txt*        For NVIM v0.11.5        Last change: 2025 November 19
 
 ==============================================================================
 Table of Contents                              *winbar.nvim-table-of-contents*
@@ -114,8 +114,6 @@ DEFAULT CONFIGURATION               *winbar.nvim-winbar-default-configuration*
       diagnostics = {
         enabled = true, -- Show diagnostics (LSP/linters)
         style = 'standard', -- Display style ("standard" or "mini")
-        bug_icon = '!', -- Icon shown before diagnostic counts (choice: 󰃤)
-        show_detail = true, -- Show individual counts for each severity
         icons = { -- Diagnostic severity icons
           error = 'e:',
           hint = 'h:',
@@ -147,6 +145,7 @@ DEFAULT CONFIGURATION               *winbar.nvim-winbar-default-configuration*
       -- Layout of the WinBar
       layout = {
         left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
+        center = {}, -- Components aligned to the center
         right = { -- Components aligned to the right
           'lsp_status',
           'diagnostics',

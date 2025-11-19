@@ -29,6 +29,7 @@ M.hl = require('winbar.highlight').highlights
 ---@param icons winbar.diagnosticIcons
 ---@return string
 local function format_standard(counts, icons)
+  if vim.o.columns < 60 then return '' end
   icons = icons or {}
   local components = {}
 
@@ -43,17 +44,11 @@ end
 -- formats diagnostic counts in minimalist mode
 ---@param counts table
 ---@return string
-local function format_mini(counts)
-  local icon = '󰃤'
+local function format_mini(counts, bug_icon)
+  bug_icon = bug_icon or ''
   local components = {}
-
-  if counts.errors > 0 then table.insert(components, '%#DiagnosticError#' .. icon .. ' ' .. counts.errors .. '%*') end
-  if counts.warnings > 0 then
-    table.insert(components, '%#DiagnosticWarn#' .. icon .. ' ' .. counts.warnings .. '%*')
-  end
-  if counts.info > 0 then table.insert(components, '%#DiagnosticInfo#' .. icon .. ' ' .. counts.info .. '%*') end
-  if counts.hints > 0 then table.insert(components, '%#DiagnosticHint#' .. icon .. ' ' .. counts.hints .. '%*') end
-
+  if counts.errors == 0 then return '' end
+  table.insert(components, '%#DiagnosticError#' .. bug_icon .. ' ' .. counts.errors .. '%*')
   return table.concat(components, ' ')
 end
 
@@ -125,7 +120,6 @@ end
 ---@param update_interval integer
 ---@return string
 function M.diagnostics(style, icons, update_interval)
-  if vim.o.columns < 60 then return '' end
   local bufnr = vim.api.nvim_get_current_buf()
   local cache_key = tostring(bufnr)
   local cache = M.cache.diagnostics
@@ -135,29 +129,9 @@ function M.diagnostics(style, icons, update_interval)
   if cached then return cached end
 
   local counts = get_diagnostic_counts(bufnr)
-  local result = (style == 'mini') and format_mini(counts) or format_standard(counts, icons)
+  local result = (style == 'mini') and format_mini(counts, icons.error) or format_standard(counts, icons)
 
   U.set_cached(cache, cache_key, result)
-  return result
-end
-
--- formatted string of diagnostic counts in minimalist mode for the current buffer.
----@return string a string with the counts using icons instead of prefixes
----@param update_interval integer
-function M.diagnostics_mini(update_interval)
-  local bufnr = vim.api.nvim_get_current_buf()
-  local cache_key = tostring(bufnr)
-  local cache = M.cache.diagnostics
-  local ttl = update_interval * 1e6 -- to nanoseconds
-
-  local cached = M.get_cached(cache, cache_key, ttl)
-  if cached then return cached end
-
-  local counts = get_diagnostic_counts(bufnr)
-  local result = format_mini(counts)
-
-  M.set_cached(cache, cache_key, result)
-
   return result
 end
 

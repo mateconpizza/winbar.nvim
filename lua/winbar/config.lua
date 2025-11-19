@@ -6,9 +6,7 @@
 
 ---@class winbar.diagnostic
 ---@field enabled boolean? enable diagnostics.
----@field style string? diagnostics style (minimalist or standard).
----@field bug_icon string? show bug icon.
----@field show_detail boolean? show detail.
+---@field style 'mini' | 'standard'? diagnostics style (standard or mini).
 ---@field icons winbar.diagnosticIcons?
 
 ---@class winbar.lspStatus
@@ -102,8 +100,6 @@ return {
   diagnostics = {
     enabled = true, -- Show diagnostics (LSP/linters)
     style = 'standard', -- Display style ("standard" or "mini")
-    bug_icon = '!', -- Icon shown before diagnostic counts (choice: 󰃤)
-    show_detail = true, -- Show individual counts for each severity
     icons = { -- Diagnostic severity icons
       error = 'e:',
       hint = 'h:',

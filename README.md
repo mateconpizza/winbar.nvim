@@ -109,8 +109,6 @@ require('winbar').setup({
   diagnostics = {
     enabled = true, -- Show diagnostics (LSP/linters)
     style = 'standard', -- Display style ("standard" or "mini")
-    bug_icon = '!', -- Icon shown before diagnostic counts (choice: 󰃤)
-    show_detail = true, -- Show individual counts for each severity
     icons = { -- Diagnostic severity icons
       error = 'e:',
       hint = 'h:',
@@ -142,6 +140,7 @@ require('winbar').setup({
   -- Layout of the WinBar
   layout = {
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
+    center = {}, -- Components aligned to the center
     right = { -- Components aligned to the right
       'lsp_status',
       'diagnostics',

@@ -67,16 +67,7 @@ function M.setup(config)
       if d == '' then return nil end
 
       local parts = {}
-
-      -- optional bug icon
-      -- if config.diagnostics.bug_icon then
-      --   -- FIX: remove bug_icon, show it only in minimalist.
-      --   table.insert(parts, '%#ErrorMsg#' .. config.diagnostics.bug_icon .. '%*')
-      -- end
-
-      -- diagnostic detail
-      if config.diagnostics.show_detail then table.insert(parts, d) end
-
+      table.insert(parts, d)
       return table.concat(parts, ' ')
     end,
   })
