@@ -73,7 +73,9 @@ function M.file_icon(bufnr)
   if not icon or not hl then
     local ok2, devicons = pcall(require, 'nvim-web-devicons')
     if ok2 then
-      icon, hl = devicons.get_icon(filename, vim.fn.fnamemodify(filename, ':e'), { default = true })
+      local ext = vim.fn.fnamemodify(filename, ':e')
+      ext = ext ~= '' and ext or filetype
+      icon, hl = devicons.get_icon(filename, ext, { default = true })
     end
   end
 

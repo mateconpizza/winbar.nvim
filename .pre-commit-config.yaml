@@ -24,4 +24,8 @@ repos:
           - README.md
           - "--project-name"
           - "winbar.nvim"
+          - "--title-date-pattern" 
+          - "%Y %B"
+          - "--demojify"
+          - "true"
         pass_filenames: false
