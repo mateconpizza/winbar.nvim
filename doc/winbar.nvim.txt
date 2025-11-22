@@ -1,4 +1,4 @@
-*winbar.nvim.txt*        For NVIM v0.11.5        Last change: 2025 November 19
+*winbar.nvim.txt*          For NVIM v0.11.5         Last change: 2025 November
 
 ==============================================================================
 Table of Contents                              *winbar.nvim-table-of-contents*
@@ -6,22 +6,21 @@ Table of Contents                              *winbar.nvim-table-of-contents*
 1. WinBar                                                 |winbar.nvim-winbar|
   - Components                                 |winbar.nvim-winbar-components|
   - Installation                             |winbar.nvim-winbar-installation|
-  - Default Configuration           |winbar.nvim-winbar-default-configuration|
   - Highlight groups                     |winbar.nvim-winbar-highlight-groups|
 
 ==============================================================================
 1. WinBar                                                 *winbar.nvim-winbar*
 
-- Configurable and minimal Neovim WinBar -
-
-
+~ Configurable and minimal Neovim WinBar ~
 COMPONENTS                                     *winbar.nvim-winbar-components*
 
+- ☒ Filename (icon support)
 - ☒ LSP Clients
 - ☒ LSP Diagnostics
 - ☒ File Icon
 - ☒ Git Branch
 - ☒ Git Diff
+- ☐ Pomodoro
 
 
 STATUS ~
@@ -72,10 +71,10 @@ With folke/lazy.nvim ~
     }
 <
 
-**Note**: You must call `require('winbar').setup()` to activate the plugin.
 
-
-DEFAULT CONFIGURATION               *winbar.nvim-winbar-default-configuration*
+  [!NOTE] **Note**: You must call `require('winbar').setup()` to activate the
+  plugin.
+Default configuration ~
 
 >lua
     -- There's no need to include this in setup(). It will be used automatically.
@@ -174,6 +173,8 @@ DEFAULT CONFIGURATION               *winbar.nvim-winbar-default-configuration*
       },
     })
 <
+
+Highlight groups ~
 
 
 HIGHLIGHT GROUPS                         *winbar.nvim-winbar-highlight-groups*

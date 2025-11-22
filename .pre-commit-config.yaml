@@ -26,6 +26,4 @@ repos:
           - "winbar.nvim"
           - "--title-date-pattern" 
           - "%Y %B"
-          - "--demojify"
-          - "true"
         pass_filenames: false

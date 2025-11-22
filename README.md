@@ -5,15 +5,17 @@
     alt="Preview" style="width: 80%; max-width: 600px; height: auto;">
 </p>
 
-<p align="center">- Configurable and minimal Neovim WinBar -<p>
+<p align="center">~ Configurable and minimal Neovim WinBar ~<p>
 
 ## Components
 
+- [x] Filename (icon support)
 - [x] LSP Clients
 - [x] LSP Diagnostics
 - [x] File Icon
 - [x] Git Branch
 - [x] Git Diff
+- [ ] Pomodoro
 
 ### Status
 
@@ -68,9 +70,11 @@ end)
 
 </details>
 
-<sub>**Note**: You must call `require('winbar').setup()` to activate the plugin.<sub>
+> [!NOTE]
+> **Note**: You must call `require('winbar').setup()` to activate the plugin.
 
-## Default Configuration
+<details>
+<summary><strong>Default configuration</strong></summary>
 
 ```lua
 -- There's no need to include this in setup(). It will be used automatically.
@@ -169,7 +173,10 @@ require('winbar').setup({
   },
 })
 ```
+</details>
 
+<details>
+<summary><strong>Highlight groups</strong></summary>
 ## Highlight groups
 
 | Group                  | Default    | Description                         |
@@ -181,3 +188,5 @@ require('winbar').setup({
 | `WinBarGitDiffAdded`   | Added      | Git diff added lines highlight      |
 | `WinBarGitDiffChanged` | Changed    | Git diff changed lines highlight    |
 | `WinBarGitDiffRemoved` | Removed    | Git diff removed lines highlight    |
+
+</details>
