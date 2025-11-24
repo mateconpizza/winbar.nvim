@@ -74,6 +74,8 @@ With folke/lazy.nvim ~
 
   [!NOTE] **Note**: You must call `require('winbar').setup()` to activate the
   plugin.
+This plug-in adds a user command `WinBarToggle` for toggling the WinBar.
+
 Default configuration ~
 
 >lua

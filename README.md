@@ -73,6 +73,8 @@ end)
 > [!NOTE]
 > **Note**: You must call `require('winbar').setup()` to activate the plugin.
 
+This plug-in adds a user command `WinBarToggle` for toggling the WinBar.
+
 <details>
 <summary><strong>Default configuration</strong></summary>
 

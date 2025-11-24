@@ -8,8 +8,8 @@
 ---
 ---@brief ]]
 
-local function cache()
-  return require('winbar.components').cache
+local function autocmd()
+  return require('winbar.autocmd')
 end
 
 local function reg()
@@ -84,7 +84,6 @@ end
 ---@param opts? winbar.config
 function M.setup(opts)
   M.config = vim.tbl_deep_extend('force', M.config, opts or {})
-  if not M.config.enabled then return end
 
   -- styles are replaced entirely
   if opts and opts.styles then
@@ -94,13 +93,36 @@ function M.setup(opts)
   end
 
   -- setup autocmd
-  require('winbar.autocmd').setup(M.config, cache())
+  autocmd().setup(M.config)
+
   -- define all components
   reg().setup(M.config)
+
   -- apply highlights
   require('winbar.highlight').setup(M.config.styles)
 
+  -- global function
   _G._winbar_render = M.render
+
+  -- user commands
+  vim.api.nvim_create_user_command(autocmd().cmd.cache, function()
+    vim.print('not implemented yet')
+  end, {})
+
+  vim.api.nvim_create_user_command(autocmd().cmd.toggle, function()
+    M.config.enabled = not M.config.enabled
+    if not M.config.enabled then
+      vim.o.winbar = ''
+      autocmd().disable()
+
+      return
+    end
+
+    vim.o.winbar = '%{%v:lua._winbar_render()%}'
+    autocmd().setup(M.config)
+  end, {})
+
+  if not M.config.enabled then return end
   vim.o.winbar = '%{%v:lua._winbar_render()%}'
 end
 

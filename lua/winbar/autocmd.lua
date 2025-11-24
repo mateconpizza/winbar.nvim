@@ -6,8 +6,10 @@ local cache_augroup = U.augroup('cache')
 
 local M = {}
 
----@type winbar.cache
-M.cache = nil
+M.cmd = {
+  cache = 'WinBarCache',
+  toggle = 'WinBarToggle',
+}
 
 ---@param update_interval integer
 function M.gitbranch(update_interval)
@@ -91,10 +93,7 @@ function M.cleanup()
 end
 
 ---@param c winbar.config
----@param cache winbar.cache
-function M.setup(c, cache)
-  M.cache = cache
-
+function M.setup(c)
   -- clear diagnostics on change
   if c.diagnostics.enabled then M.diagnostics(c.update_interval) end
 
@@ -106,6 +105,12 @@ function M.setup(c, cache)
 
   -- cleanup cache on buffer delete
   M.cleanup()
+end
+
+-- clear all autocmds in the augroup
+function M.disable()
+  vim.api.nvim_clear_autocmds({ group = cache_augroup })
+  C.clear()
 end
 
 return M
