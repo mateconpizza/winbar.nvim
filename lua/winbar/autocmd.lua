@@ -1,8 +1,8 @@
-local C = require('winbar.components')
-local U = require('winbar.util')
+local Cache = require('winbar.cache')
+local Util = require('winbar.util')
 
 local autocmd = vim.api.nvim_create_autocmd
-local cache_augroup = U.augroup('cache')
+local cache_augroup = Util.augroup('cache')
 
 local M = {}
 
@@ -16,8 +16,8 @@ function M.gitbranch(update_interval)
   autocmd({ 'DirChanged', 'BufEnter' }, {
     group = cache_augroup,
     callback = function(args)
-      M.cache['git_branch_' .. args.buf] = nil
-      U.throttled_redraw(update_interval)
+      Cache.invalidate('gitbranch', args.buf)
+      Util.throttled_redraw(update_interval)
     end,
   })
 end
@@ -29,10 +29,10 @@ function M.diagnostics(update_interval)
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
-      if not U.is_normal_buffer(bufnr) or not U.is_visible_in_normal_win(bufnr) then return end
+      if not Util.is_normal_buffer(bufnr) or not Util.is_visible_in_normal_win(bufnr) then return end
 
-      C.cache.diagnostics[bufnr] = nil
-      U.throttled_redraw(update_interval)
+      Cache.invalidate('lsp_diagnostics', bufnr)
+      Util.throttled_redraw(update_interval)
     end,
   })
 
@@ -41,13 +41,11 @@ function M.diagnostics(update_interval)
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
-      if not U.is_normal_buffer(bufnr) or not U.is_visible_in_normal_win(bufnr) then return end
+      if not Util.is_normal_buffer(bufnr) or not Util.is_visible_in_normal_win(bufnr) then return end
 
-      vim.defer_fn(function()
-        M.cache.diagnostics[bufnr] = nil
-        M.cache['git_diff_' .. bufnr] = nil
-        U.throttled_redraw(update_interval)
-      end, 50)
+      Cache.lsp_attached[bufnr] = true
+      Cache.invalidate('lsp_diagnostics', bufnr)
+      Util.throttled_redraw(update_interval)
     end,
   })
 
@@ -56,7 +54,9 @@ function M.diagnostics(update_interval)
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
-      M.cache.diagnostics[bufnr] = nil
+      Cache.lsp_attached[bufnr] = nil
+      Cache.invalidate('lsp_diagnostics', bufnr)
+      Cache.invalidate('lsp_clients', bufnr)
     end,
   })
 end
@@ -67,27 +67,20 @@ function M.gitdiff(update_interval)
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
-      if not U.is_normal_buffer(bufnr) or not U.is_visible_in_normal_win(bufnr) then return end
-
-      vim.defer_fn(function()
-        M.cache['git_diff_' .. bufnr] = nil
-        U.throttled_redraw(update_interval)
-      end, 50)
+      if not Util.is_normal_buffer(bufnr) or not Util.is_visible_in_normal_win(bufnr) then return end
+      Cache.invalidate('gitdiff', bufnr)
+      Util.throttled_redraw(update_interval)
     end,
   })
 end
 
 function M.cleanup()
-  autocmd('BufDelete', {
+  autocmd({ 'BufDelete', 'BufWipeout' }, {
     group = cache_augroup,
     callback = function(args)
       local bufnr = args.buf
-      if not U.is_normal_buffer(bufnr) or not U.is_visible_in_normal_win(bufnr) then return end
-
-      C.cache.diagnostics[bufnr] = nil
-      C.cache['git_diff_' .. bufnr] = nil
-      C.cache.fileicon[bufnr] = nil
-      C.cache.filename[bufnr] = nil
+      if not Util.is_normal_buffer(bufnr) then return end
+      Cache.prune(bufnr)
     end,
   })
 end
@@ -110,7 +103,7 @@ end
 -- clear all autocmds in the augroup
 function M.disable()
   vim.api.nvim_clear_autocmds({ group = cache_augroup })
-  C.clear()
+  Cache.reset()
 end
 
 return M
