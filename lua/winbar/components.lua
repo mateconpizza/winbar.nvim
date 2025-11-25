@@ -1,26 +1,46 @@
----@diagnostic disable: undefined-field
+local Cache = require('winbar.cache')
+local Util = require('winbar.util')
 
-local U = require('winbar.util')
+-- get icon from external plugin
+local function get_icon(bufnr)
+  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':t')
+  local filetype = vim.bo[bufnr].filetype
+  local icon, hl
+
+  -- try mini.icons
+  local ok_mini, mini = pcall(require, 'mini.icons')
+  if ok_mini then
+    icon, hl = mini.get('filetype', filetype)
+  end
+
+  -- fallback to devicons
+  if not icon then
+    local ok_dev, devicons = pcall(require, 'nvim-web-devicons')
+    if ok_dev then
+      local ext = vim.fn.fnamemodify(filename, ':e')
+      icon, hl = devicons.get_icon(filename, ext or filetype, { default = true })
+    end
+  end
+
+  return (icon and hl) and ('%#' .. hl .. '#' .. icon .. '%*') or ''
+end
+
+-- diagnostic counts for the current buffer
+---@param bufnr number
+---@return table table with counts {errors, warnings, info, hints}
+local function get_diagnostic_counts(bufnr)
+  local diag = vim.diagnostic
+  return {
+    errors = #diag.get(bufnr, { severity = diag.severity.ERROR }),
+    warnings = #diag.get(bufnr, { severity = diag.severity.WARN }),
+    hints = #diag.get(bufnr, { severity = diag.severity.HINT }),
+    info = #diag.get(bufnr, { severity = diag.severity.INFO }),
+  }
+end
 
 ---@module 'winbar.components'
 ---@class winbar.components
 local M = {}
-
--- cache for performance
----@class winbar.cache
----@field fileicon table<string, string> cached file icon
----@field filename table<string, string> cached filename
----@field diagnostics table<string, string>  cached diagnostics per buffer
----@field git_diff fun(bufnr: integer, update_interval: integer, c: winbar.gitdiff)|nil  active git diff strategy function
----@field last_update integer                last update timestamp (nanoseconds or ms depending on usage)
-M.cache = {
-  fileicon = {},
-  filename = {},
-  diagnostics = {},
-  git_branch = nil,
-  git_diff = nil,
-  last_update = 0,
-}
 
 M.hl = require('winbar.highlight').highlights
 
@@ -54,122 +74,70 @@ end
 
 ---@param bufnr integer
 ---@return string
-function M.file_icon(bufnr)
-  local cache, cache_key = M.cache.fileicon, tostring(bufnr)
-  local cached = U.get_cached(cache, cache_key, math.huge)
-  if cached then return cached end
-
-  local icon, hl
-  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':t')
-  local filetype = vim.bo[bufnr].filetype
-
-  -- try `echasnovski/mini.nvim` first
-  local ok, mini = pcall(require, 'mini.icons')
-  if ok then
-    icon, hl = mini.get('filetype', filetype)
-  end
-
-  -- fallback to `nvim-tree/nvim-web-devicons` if needed
-  if not icon or not hl then
-    local ok2, devicons = pcall(require, 'nvim-web-devicons')
-    if ok2 then
-      local ext = vim.fn.fnamemodify(filename, ':e')
-      ext = ext ~= '' and ext or filetype
-      icon, hl = devicons.get_icon(filename, ext, { default = true })
-    end
-  end
-
-  local result = (icon and hl) and ('%#' .. hl .. '#' .. icon .. '%*') or ''
-  U.set_cached(cache, cache_key, result)
-
-  return result
+function M.fileicon(bufnr)
+  return Cache.ensure('fileicon', bufnr, function()
+    return get_icon(bufnr)
+  end)
 end
 
 -- lsp client names for current buffer as formatted status string.
 ---@param lsp winbar.lspClients
-function M.lsp_status(lsp)
-  if vim.o.columns < 60 then return '' end
+function M.lsp_clients(lsp)
+  local bufnr = vim.api.nvim_get_current_buf()
+  if not Cache.lsp_attached[bufnr] then return '' end
 
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then return '' end
+  return Cache.ensure('lsp_clients', bufnr, function()
+    local clients = vim.lsp.get_clients({ bufnr = bufnr })
+    local names = {}
+    for _, client in pairs(clients) do
+      table.insert(names, client.name)
+    end
+    local result = lsp.format(table.concat(names, lsp.separator))
 
-  local names = {}
-  for _, client in pairs(clients) do
-    table.insert(names, client.name)
-  end
-
-  local result = lsp.format(table.concat(names, lsp.separator))
-
-  return '%#' .. M.hl.lsp_status.group .. '#' .. result .. '%*'
-end
-
--- diagnostic counts for the current buffer
----@param bufnr number
----@return table table with counts {errors, warnings, info, hints}
-local function get_diagnostic_counts(bufnr)
-  local diag = vim.diagnostic
-  return {
-    errors = #diag.get(bufnr, { severity = diag.severity.ERROR }),
-    warnings = #diag.get(bufnr, { severity = diag.severity.WARN }),
-    hints = #diag.get(bufnr, { severity = diag.severity.HINT }),
-    info = #diag.get(bufnr, { severity = diag.severity.INFO }),
-  }
+    return '%#' .. M.hl.lsp_status.group .. '#' .. result .. '%*'
+  end)
 end
 
 -- formatted string of diagnostic counts for the current buffer.
 ---@param style? "standard"|"mini"
 ---@param icons winbar.diagnosticIcons
----@param update_interval integer
+---@param interval_ms integer
 ---@return string
-function M.diagnostics(style, icons, update_interval)
+function M.lsp_diagnostics(style, icons, interval_ms)
   local bufnr = vim.api.nvim_get_current_buf()
-  local cache_key = tostring(bufnr)
-  local cache = M.cache.diagnostics
-  local ttl = update_interval * 1e6 -- to nanoseconds
+  if not Cache.lsp_attached[bufnr] then return '' end
 
-  local cached = U.get_cached(cache, cache_key, ttl)
-  if cached then return cached end
-
-  local counts = get_diagnostic_counts(bufnr)
-  local result = (style == 'mini') and format_mini(counts, icons.error) or format_standard(counts, icons)
-
-  U.set_cached(cache, cache_key, result)
-  return result
+  return Cache.ensure('lsp_diagnostics', bufnr, function()
+    local counts = get_diagnostic_counts(bufnr)
+    if style == 'mini' then return format_mini(counts, icons.error) end
+    return format_standard(counts, icons)
+  end, interval_ms)
 end
 
 ---@param bufnr integer
----@param fn winbar.filename
+---@param opts winbar.filename
 ---@return string
-function M.filename(bufnr, fn)
-  local cache, cache_key = M.cache.filename, tostring(bufnr)
-  local cached = U.get_cached(cache, cache_key, math.huge)
-  if cached then return cached end
+function M.filename(bufnr, opts)
+  return Cache.ensure('filename', bufnr, function()
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    local filename = vim.fn.fnamemodify(bufname, ':t')
 
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  local filename = vim.fn.fnamemodify(bufname, ':t')
-
-  local all_buffers = vim.api.nvim_list_bufs()
-  local duplicates = 0
-  for _, buf in ipairs(all_buffers) do
-    if vim.api.nvim_buf_is_loaded(buf) then
-      local name = vim.api.nvim_buf_get_name(buf)
-      if vim.fn.fnamemodify(name, ':t') == filename then duplicates = duplicates + 1 end
+    -- check if duplicate name
+    local all_buffers = vim.api.nvim_list_bufs()
+    local duplicates = 0
+    for _, buf in ipairs(all_buffers) do
+      if vim.api.nvim_buf_is_loaded(buf) then
+        local name = vim.api.nvim_buf_get_name(buf)
+        if vim.fn.fnamemodify(name, ':t') == filename then duplicates = duplicates + 1 end
+      end
     end
-  end
+    if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
 
-  -- check if duplicate name
-  if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
+    -- add icon
+    if opts.icon then filename = M.fileicon(bufnr) .. ' ' .. filename end
 
-  -- add icon
-  if fn.icon then
-    local icon = M.file_icon(bufnr)
-    filename = icon .. ' ' .. filename
-  end
-
-  filename = fn.format(filename)
-  U.set_cached(cache, cache_key, filename)
-
-  return filename
+    return opts.format(filename)
+  end)
 end
 
 ---@param icon string
@@ -189,44 +157,31 @@ function M.git_branch(bufnr, icon)
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   if bufname == '' then return '' end
 
-  -- derive directory key (repository context)
-  local dir = vim.fn.fnamemodify(bufname, ':h')
-  local cache_key = 'git_branch_' .. dir
-  local cache = M.cache
-  local cached = U.get_cached(cache, cache_key, math.huge)
-  if cached then return cached end
+  return Cache.ensure('gitbranch', bufnr, function()
+    -- check for external plugin
+    local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
+    if branch ~= nil then
+      local result = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
+      return result
+    end
 
-  -- check for external plugin
-  local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-  if branch ~= nil then
+    branch = Util.git_branch()
+    if not branch then return '' end
+
     local result = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
-    U.set_cached(cache, cache_key, result)
     return result
-  end
-
-  branch = U.git_branch()
-  if not branch then return '' end
-
-  local result = string.format('%%#%s#%s %s%%*', M.hl.git_branch.group, icon, branch)
-  U.set_cached(cache, cache_key, result)
-  return result
+  end)
 end
 
 ---@param bufnr integer
----@param update_interval integer
+---@param interval_ms integer
 ---@param c winbar.gitdiff
-function M.git_diff(bufnr, update_interval, c)
-  local cache_key = 'git_diff_' .. bufnr
-  local cache = M.cache
-  local ttl = update_interval * 1e6 -- to nanoseconds
-
-  local cached = U.get_cached(cache, cache_key, ttl)
-  if cached then return cached end
-
-  local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
-  if diffstat == nil then return '' end
-
-  return M.format_gitdiff_output(c, diffstat)
+function M.git_diff(bufnr, interval_ms, c)
+  return Cache.ensure('gitdiff', bufnr, function()
+    local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
+    if diffstat == nil then return '' end
+    return M.format_gitdiff_output(c, diffstat)
+  end, interval_ms)
 end
 
 -- parse a git diff stat string

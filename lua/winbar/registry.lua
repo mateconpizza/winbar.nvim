@@ -50,7 +50,7 @@ function M.setup(config)
       return config.lsp.enabled
     end,
     render = function()
-      return components.lsp_status(config.lsp)
+      return components.lsp_clients(config.lsp)
     end,
   })
 
@@ -63,7 +63,7 @@ function M.setup(config)
     end,
     render = function()
       local style = config.diagnostics.style or 'standard'
-      local d = components.diagnostics(style, config.diagnostics.icons, config.update_interval)
+      local d = components.lsp_diagnostics(style, config.diagnostics.icons, config.update_interval)
       if d == '' then return nil end
 
       local parts = {}
