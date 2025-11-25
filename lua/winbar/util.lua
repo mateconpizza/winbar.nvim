@@ -89,4 +89,110 @@ function M.git_branch()
   return branch
 end
 
+---@return integer buf The buffer number
+---@return integer win The window ID
+function M.create_floating_window(opts)
+  opts = opts or {}
+  local width = opts.width or math.floor(vim.o.columns * 0.7)
+  local height = opts.height or math.floor(vim.o.lines * 0.7)
+
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  local buf = nil
+  if vim.api.nvim_buf_is_valid(opts.buf) then
+    buf = opts.buf
+  else
+    buf = vim.api.nvim_create_buf(false, true)
+  end
+
+  local defaults = {
+    relative = 'editor',
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = 'rounded',
+  }
+
+  opts.buf = nil
+  opts = vim.tbl_extend('force', opts, defaults)
+  local win = vim.api.nvim_open_win(buf, true, opts)
+
+  return buf, win
+end
+
+---@param s string
+---@param n integer
+---@return string
+function M.truncate_str(s, n)
+  if #s > n then return s:sub(1, n) .. '...' end
+  return s
+end
+
+-- create a prettified string array representation of the store
+---@param cache table
+---@return string[]
+function M.prettify_store(cache)
+  local lines = {}
+
+  -- add header
+  local title = 'Cache Store Contents'
+  table.insert(lines, title)
+  table.insert(lines, '=' .. string.rep('=', #title - 1))
+  table.insert(lines, '')
+
+  -- iterate through each domain (namespace)
+  for domain, domain_data in pairs(cache) do
+    local domain_title = string.format('Domain: %s', domain)
+    table.insert(lines, domain_title)
+    table.insert(lines, string.rep('-', #domain_title))
+
+    -- check if domain has any keys
+    local domain_empty = true
+    for _ in pairs(domain_data) do
+      domain_empty = false
+      break
+    end
+
+    if domain_empty then
+      table.insert(lines, '  (no entries)')
+    else
+      -- iterate through each key in the domain
+      for key, entry in pairs(domain_data) do
+        table.insert(lines, string.format('  Key: %s', key))
+
+        if type(entry) == 'table' then
+          -- pretty print the entry fields
+          if entry.value ~= nil then
+            local value_str = type(entry.value) == 'string' and string.format('"%s"', entry.value)
+              or tostring(entry.value)
+            table.insert(lines, string.format('    value: %s', value_str))
+          end
+
+          if entry.expires_at then table.insert(lines, string.format('    expires_at: %s', entry.expires_at)) end
+          if entry.time then table.insert(lines, string.format('    time: %s', entry.time)) end
+          if entry.bufnr then table.insert(lines, string.format('    bufnr: %s', entry.bufnr)) end
+
+          -- show any other fields
+          for field, val in pairs(entry) do
+            if field ~= 'value' and field ~= 'expires_at' and field ~= 'time' and field ~= 'bufnr' then
+              table.insert(lines, string.format('    %s: %s', field, tostring(val)))
+            end
+          end
+        else
+          table.insert(lines, string.format('    %s', tostring(entry)))
+        end
+
+        table.insert(lines, '')
+      end
+    end
+
+    table.insert(lines, '')
+  end
+
+  return lines
+end
+
 return M

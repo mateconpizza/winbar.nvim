@@ -70,6 +70,7 @@
 ---@field git winbar.git?
 ---@field layout winbar.layout?
 ---@field styles winbar.userHighlights? winbar highlights.
+---@field dev_mode? boolean @private -- enable debug features
 return {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
@@ -163,4 +164,6 @@ return {
     diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
     diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
   },
+  -- Dev mode
+  dev_mode = false,
 }

@@ -105,10 +105,6 @@ function M.setup(opts)
   _G._winbar_render = M.render
 
   -- user commands
-  vim.api.nvim_create_user_command(autocmd().cmd.cache, function()
-    vim.print('not implemented yet')
-  end, {})
-
   vim.api.nvim_create_user_command(autocmd().cmd.toggle, function()
     M.config.enabled = not M.config.enabled
     if not M.config.enabled then
@@ -121,6 +117,12 @@ function M.setup(opts)
     vim.o.winbar = '%{%v:lua._winbar_render()%}'
     autocmd().setup(M.config)
   end, {})
+
+  if M.config.dev_mode then
+    vim.api.nvim_create_user_command(autocmd().cmd.inspect, function()
+      require('winbar.cache').inspect()
+    end, {})
+  end
 
   if not M.config.enabled then return end
   vim.o.winbar = '%{%v:lua._winbar_render()%}'

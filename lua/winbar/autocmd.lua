@@ -7,7 +7,7 @@ local cache_augroup = Util.augroup('cache')
 local M = {}
 
 M.cmd = {
-  cache = 'WinBarCache',
+  inspect = 'WinBarCacheInspect',
   toggle = 'WinBarToggle',
 }
 

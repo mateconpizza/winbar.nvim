@@ -1,6 +1,8 @@
 ---@diagnostic disable: undefined-field
 local uv = vim.uv or vim.loop
 
+local Util = require('winbar.util')
+
 ---@param ttl_ms number|nil time to live in milliseconds. If nil, lives forever.
 ---@return number
 local function calculate_expiry(ttl_ms)
@@ -79,8 +81,28 @@ function M.reset()
       domain_store[k] = nil
     end
   end
+end
 
-  M.lsp_attached = {}
+-- inspect the current winbar cache state
+function M.inspect()
+  local lines = Util.prettify_store(store)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].filetype = 'markdown'
+
+  local newbufnr, win = Util.create_floating_window({
+    title = '~ WinBar Cache Inspector ~',
+    buf = buf,
+    title_pos = 'center',
+  })
+
+  -- easy close with <q> or <esc>
+  vim.keymap.set({ 'n', 'i' }, 'q', function()
+    vim.api.nvim_win_close(win, true)
+  end, { buffer = newbufnr, nowait = true, silent = true })
+  vim.keymap.set({ 'n', 'i' }, '<Esc>', function()
+    vim.api.nvim_win_close(win, true)
+  end, { buffer = newbufnr, nowait = true, silent = true })
 end
 
 return M
