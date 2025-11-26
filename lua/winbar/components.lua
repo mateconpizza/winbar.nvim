@@ -81,8 +81,10 @@ function M.fileicon(bufnr)
 end
 
 -- lsp client names for current buffer as formatted status string.
----@param lsp winbar.lspClients
-function M.lsp_clients(lsp)
+---@param opts winbar.lspClients
+function M.lsp_clients(opts)
+  if Util.is_narrow(opts.min_width) then return '' end
+
   local bufnr = vim.api.nvim_get_current_buf()
   if not Cache.lsp_attached[bufnr] then return '' end
 
@@ -92,7 +94,7 @@ function M.lsp_clients(lsp)
     for _, client in pairs(clients) do
       table.insert(names, client.name)
     end
-    local result = lsp.format(table.concat(names, lsp.separator))
+    local result = opts.format(table.concat(names, opts.separator))
 
     return '%#' .. M.hl.lsp_status.group .. '#' .. result .. '%*'
   end)
@@ -100,12 +102,16 @@ end
 
 -- formatted string of diagnostic counts for the current buffer.
 ---@param style? "standard"|"mini"
----@param icons winbar.diagnosticIcons
+---@param opts winbar.diagnostic
 ---@param interval_ms integer
 ---@return string
-function M.lsp_diagnostics(style, icons, interval_ms)
+function M.lsp_diagnostics(style, opts, interval_ms)
+  if Util.is_narrow(opts.min_width) then return '' end
+
   local bufnr = vim.api.nvim_get_current_buf()
   if not Cache.lsp_attached[bufnr] then return '' end
+
+  local icons = opts.icons or {}
 
   return Cache.ensure('lsp_diagnostics', bufnr, function()
     local counts = get_diagnostic_counts(bufnr)
@@ -118,6 +124,8 @@ end
 ---@param opts winbar.filename
 ---@return string
 function M.filename(bufnr, opts)
+  if Util.is_narrow(opts.min_width) then return '' end
+
   return Cache.ensure('filename', bufnr, function()
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local filename = vim.fn.fnamemodify(bufname, ':t')
@@ -152,10 +160,13 @@ end
 
 -- current git branch name as formatted string with icon, cached for performance.
 ---@param bufnr integer
----@param icon string
-function M.git_branch(bufnr, icon)
+---@param opts winbar.gitbranch
+function M.git_branch(bufnr, opts)
+  if Util.is_narrow(opts.min_width) then return '' end
+
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   if bufname == '' then return '' end
+  local icon = opts.icon
 
   return Cache.ensure('gitbranch', bufnr, function()
     -- check for external plugin
@@ -175,12 +186,14 @@ end
 
 ---@param bufnr integer
 ---@param interval_ms integer
----@param c winbar.gitdiff
-function M.git_diff(bufnr, interval_ms, c)
+---@param opts winbar.gitdiff
+function M.git_diff(bufnr, interval_ms, opts)
+  if Util.is_narrow(opts.min_width) then return '' end
+
   return Cache.ensure('gitdiff', bufnr, function()
     local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
     if diffstat == nil then return '' end
-    return M.format_gitdiff_output(c, diffstat)
+    return M.format_gitdiff_output(opts, diffstat)
   end, interval_ms)
 end
 

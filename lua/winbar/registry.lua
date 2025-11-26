@@ -6,7 +6,7 @@ local M = {}
 ---@field name string component identifier
 ---@field enabled fun(): boolean check if component should be rendered
 ---@field render fun(): string|nil render the component content
----@field side? 'left'|'right' which side of the winbar (optional)
+---@field side? 'left'|'center'|'right' which side of the winbar (optional)
 ---@field spacing? boolean add space after component (default: true)
 
 -- component registry
@@ -38,7 +38,7 @@ function M.setup(config)
     end,
     render = function()
       local bufnr = vim.api.nvim_get_current_buf()
-      return components.git_branch(bufnr, config.git.branch.icon)
+      return components.git_branch(bufnr, config.git.branch)
     end,
   })
 
@@ -63,7 +63,7 @@ function M.setup(config)
     end,
     render = function()
       local style = config.diagnostics.style or 'standard'
-      local d = components.lsp_diagnostics(style, config.diagnostics.icons, config.update_interval)
+      local d = components.lsp_diagnostics(style, config.diagnostics, config.update_interval)
       if d == '' then return nil end
 
       local parts = {}

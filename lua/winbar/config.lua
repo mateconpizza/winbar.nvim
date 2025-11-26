@@ -2,17 +2,19 @@
 ---@field error string? icon for errors.
 ---@field hint string? icon for hints.
 ---@field info string? icon for infos.
----@field warning string? icon for warnings.
+---@field warn string? icon for warnings.
 
 ---@class winbar.diagnostic
 ---@field enabled boolean? enable diagnostics.
 ---@field style 'mini' | 'standard'? diagnostics style (standard or mini).
 ---@field icons winbar.diagnosticIcons?
+---@field min_width? integer minimum window width required to display this component.
 
 ---@class winbar.lspClients
 ---@field enabled boolean? enable LSP client name display.
 ---@field separator? string? separator between multiple LSP clients.
 ---@field format? fun(clients: string): string custom formatter for client names.
+---@field min_width? integer minimum window width required to display this component.
 
 ---@class winbar.icons
 ---@field modified string? icon for modified buffers.
@@ -41,12 +43,14 @@
 ---@class winbar.gitbranch
 ---@field enabled boolean?
 ---@field icon string? icon for Git branch indicator.
+---@field min_width? integer minimum window width required to display this component.
 
 ---@class winbar.gitdiff
 ---@field enabled boolean?
 ---@field added string? icon for added files in git diff
 ---@field changed string? icon for changed files in git diff
 ---@field removed string? icon for removed files in git diff
+---@field min_width? integer minimum window width required to display this component.
 
 ---@class winbar.git
 ---@field branch winbar.gitbranch? git branch configuration
@@ -54,13 +58,13 @@
 
 ---@class winbar.filename
 ---@field enabled boolean?
----@field icon boolean? -- Show file icon (e.g., via nvim-web-devicons)
+---@field icon boolean? -- show file icon (e.g., via nvim-web-devicons)
 ---@field format? fun(clients: string): string custom formatter for the filename.
+---@field min_width? integer minimum window width required to display this component.
 
 ---@class (exact) winbar.config
 ---@field enabled boolean?
 ---@field update_interval integer? interval in milliseconds
----@field file_icon boolean? show file icon.
 ---@field filename winbar.filename
 ---@field diagnostics winbar.diagnostic? diagnostics.
 ---@field lsp winbar.lspClients? LSP client name display..
@@ -81,6 +85,7 @@ return {
     format = function(filename) -- Custom formatter for the filename.
       return filename
     end,
+    min_width = 20,
   },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
@@ -119,6 +124,7 @@ return {
       info = 'i:',
       warn = 'w:',
     },
+    min_width = 55,
   },
   -- LSP client name display
   lsp = {
@@ -127,18 +133,21 @@ return {
     format = function(clients) -- Formatter for LSP client names
       return clients
     end,
+    min_width = 50,
   },
   -- Git display
   git = {
     branch = {
       enabled = true,
       icon = '', -- Git branch icon (choice: )
+      min_width = 45,
     },
     diff = {
       enabled = true,
       added = '+',
       changed = '~',
       removed = '-',
+      min_width = 50,
     },
   },
   -- Layout of the WinBar

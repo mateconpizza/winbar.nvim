@@ -195,4 +195,10 @@ function M.prettify_store(cache)
   return lines
 end
 
+---@param min_width integer
+function M.is_narrow(min_width)
+  local width = vim.api.nvim_win_get_width(0)
+  return width < min_width
+end
+
 return M
