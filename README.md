@@ -15,7 +15,6 @@
 - [x] File Icon
 - [x] Git Branch
 - [x] Git Diff
-- [ ] Pomodoro
 
 ### Status
 
@@ -86,10 +85,11 @@ require('winbar').setup({
   update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
   filename = {
     enabled = true,
-    icon = true,  -- Show file icon (e.g., via nvim-web-devicons)
+    icon = true, -- Show file icon (e.g., via nvim-web-devicons)
     format = function(filename) -- Custom formatter for the filename.
       return filename
     end,
+    min_width = 20,
   },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
@@ -128,6 +128,7 @@ require('winbar').setup({
       info = 'i:',
       warn = 'w:',
     },
+    min_width = 55,
   },
   -- LSP client name display
   lsp = {
@@ -136,18 +137,21 @@ require('winbar').setup({
     format = function(clients) -- Formatter for LSP client names
       return clients
     end,
+    min_width = 50,
   },
   -- Git display
   git = {
     branch = {
       enabled = true,
       icon = '', -- Git branch icon (choice: )
+      min_width = 45,
     },
     diff = {
       enabled = true,
       added = '+',
       changed = '~',
       removed = '-',
+      min_width = 50,
     },
   },
   -- Layout of the WinBar
@@ -175,6 +179,7 @@ require('winbar').setup({
   },
 })
 ```
+
 </details>
 
 <details>
@@ -187,8 +192,8 @@ require('winbar').setup({
 | `WinBarReadonly`       | ErrorMsg   | Read-only indicator highlight       |
 | `WinBarModified`       | WarningMsg | Modified buffer indicator highlight |
 | `WinBarGitBranch`      | Comment    | Git branch highlight                |
-| `WinBarGitDiffAdded`   | Added      | Git diff added lines highlight      |
-| `WinBarGitDiffChanged` | Changed    | Git diff changed lines highlight    |
-| `WinBarGitDiffRemoved` | Removed    | Git diff removed lines highlight    |
+| `WinBarGitDiffAdded`   | Comment    | Git diff added lines highlight      |
+| `WinBarGitDiffChanged` | Comment    | Git diff changed lines highlight    |
+| `WinBarGitDiffRemoved` | Comment    | Git diff removed lines highlight    |
 
 </details>
