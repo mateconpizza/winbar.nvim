@@ -24,6 +24,10 @@ local function highlight()
   return require('winbar.highlight')
 end
 
+local function health()
+  return require('winbar.health')
+end
+
 local shown_errors = {}
 
 ---@param comp winbar.component
@@ -115,6 +119,8 @@ function M.setup(opts)
       M.config.styles[key] = style
     end
   end
+
+  health().validate(M.config)
 
   -- setup autocmd
   autocmd().setup(M.config)

@@ -5,6 +5,10 @@ local function utils()
   return require('winbar.util')
 end
 
+local function health()
+  return require('winbar.health')
+end
+
 local shown_errors = {}
 
 ---@param ttl_ms number|nil time to live in milliseconds. If nil, lives forever.
@@ -59,7 +63,9 @@ function M.ensure(domain, key, generator, ttl)
     if not shown_errors[domain] then
       shown_errors[domain] = true
       vim.schedule(function()
-        utils().err("component '" .. domain .. "' crashed!\n" .. errmsg)
+        local mesg = "component '" .. domain .. "' crashed"
+        health().log_error(mesg)
+        utils().err(mesg .. '\n' .. errmsg)
       end)
     end
 
