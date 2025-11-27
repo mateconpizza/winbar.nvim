@@ -30,7 +30,7 @@ function M.render()
 
   local bufnr = vim.api.nvim_get_current_buf()
 
-  return cache().ensure('filename', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local filename = vim.fn.fnamemodify(bufname, ':t')
 

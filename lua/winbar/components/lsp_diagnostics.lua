@@ -65,7 +65,7 @@ end
 ---@class winbar.components.lsp_diagnostics: winbar.component
 local M = {}
 
-M.name = 'diagnostics'
+M.name = 'lsp_diagnostics'
 M.side = 'right'
 M.interval_ms = nil
 function M.enabled()
@@ -83,7 +83,7 @@ function M.render()
 
   local icons = M.opts.icons or {}
 
-  return cache().ensure('lsp_diagnostics', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     local counts = get_diagnostic_counts(bufnr)
     if M.opts.style == 'mini' then return format_mini(counts, icons.error) end
     return format_standard(counts, icons)

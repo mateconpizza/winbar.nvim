@@ -48,14 +48,14 @@ end
 function M.setup(c)
   -- stylua: ignore
   local components = {
-    { 'modified',        c.icons.modified },
-    { 'readonly',        c.icons.readonly },
-    -- { 'fileicon',        c.filename.icon },
-    { 'filename',        c.filename },
-    { 'gitbranch',       c.git.branch },
-    { 'gitdiff',         c.git.diff, c.update_interval },
-    { 'lsp_clients',     c.lsp },
-    { 'lsp_diagnostics', c.diagnostics, c.update_interval },
+    { 'modified',         c.icons.modified },
+    { 'readonly',         c.icons.readonly },
+    -- { 'fileicon',         c.filename.icon },
+    { 'filename',         c.filename },
+    { 'git_branch',       c.git.branch },
+    { 'git_diff',         c.git.diff, c.update_interval },
+    { 'lsp_clients',      c.lsp },
+    { 'lsp_diagnostics',  c.diagnostics, c.update_interval },
   }
 
   for _, item in ipairs(components) do

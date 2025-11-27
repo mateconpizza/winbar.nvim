@@ -69,7 +69,7 @@ function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
   local bufnr = vim.api.nvim_get_current_buf()
 
-  return cache().ensure('gitdiff', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
     if diffstat == nil then return '' end
 

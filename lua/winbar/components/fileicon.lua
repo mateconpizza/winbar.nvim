@@ -43,7 +43,7 @@ M.opts = false
 ---@return string
 function M.render()
   local bufnr = vim.api.nvim_get_current_buf()
-  return cache().ensure('fileicon', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     return get_icon(bufnr)
   end)
 end

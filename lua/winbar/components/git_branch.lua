@@ -33,7 +33,7 @@ function M.render()
   local icon = M.opts.icon
   local hl = highlight().highlights
 
-  return cache().ensure('gitbranch', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     -- check for external plugin
     local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
     if branch ~= nil then return highlight().string(hl.git_branch.group, icon .. ' ' .. branch) end

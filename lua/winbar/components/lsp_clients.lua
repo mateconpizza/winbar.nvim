@@ -31,7 +31,7 @@ function M.render()
   local bufnr = vim.api.nvim_get_current_buf()
   if not cache().lsp_attached[bufnr] then return '' end
 
-  return cache().ensure('lsp_clients', bufnr, function()
+  return cache().ensure(M.name, bufnr, function()
     local clients = vim.lsp.get_clients({ bufnr = bufnr })
     local names = {}
     for _, client in pairs(clients) do

@@ -160,7 +160,7 @@ require('winbar').setup({
     center = {}, -- Components aligned to the center
     right = { -- Components aligned to the right
       'lsp_status',
-      'diagnostics',
+      'lsp_diagnostics',
       'modified',
       'readonly',
       'file_icon',
