@@ -78,7 +78,7 @@
 return {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
-  update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
+  update_interval = 1000, -- How much to wait in milliseconds before update (git diff, diagnostics)
   filename = {
     enabled = true,
     icon = true, -- Show file icon (e.g., via nvim-web-devicons)
@@ -172,10 +172,10 @@ return {
     diffadded = { link = 'Comment' }, -- Git diff added lines highlight
     diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
     diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
-    diagnostics_error = { link = 'DiagnosticError' },
-    diagnostics_warn = { link = 'DiagnosticWarn' },
-    diagnostics_info = { link = 'DiagnosticInfo' },
-    diagnostics_hint = { link = 'DiagnosticHint' },
+    diag_error = { link = 'DiagnosticError' }, -- Lsp Diagnostic error highlight
+    diag_warn = { link = 'DiagnosticWarn' }, -- Lsp Diagnostic warning highlight
+    diag_info = { link = 'DiagnosticInfo' }, -- Lsp Diagnostic info highlight
+    diag_hint = { link = 'DiagnosticHint' }, -- Lsp Diagnostic hint highlight
   },
   -- Dev mode
   dev_mode = false,
