@@ -1,7 +1,11 @@
 ---@diagnostic disable: undefined-field
 local uv = vim.uv or vim.loop
 
-local Util = require('winbar.util')
+local function utils()
+  return require('winbar.util')
+end
+
+local shown_errors = {}
 
 ---@param ttl_ms number|nil time to live in milliseconds. If nil, lives forever.
 ---@return number
@@ -47,14 +51,28 @@ function M.ensure(domain, key, generator, ttl)
   -- return if entry exists and hasn't expired
   if entry and now < entry.expires_at then return entry.value end
 
-  -- generate value and store it
-  local val = generator()
+  -- generate value safely
+  local ok, content = pcall(generator)
+  if not ok then
+    local errmsg = content
+
+    if not shown_errors[domain] then
+      shown_errors[domain] = true
+      vim.schedule(function()
+        utils().err("component '" .. domain .. "' crashed!\n" .. errmsg)
+      end)
+    end
+
+    content = '' -- fallback value
+  end
+
+  -- store it
   store[domain][k] = {
-    value = val,
+    value = content,
     expires_at = calculate_expiry(ttl),
   }
 
-  return val
+  return content
 end
 
 -- manually invalidate a specific entry (useful for bufwritepost)
@@ -85,12 +103,12 @@ end
 
 -- inspect the current winbar cache state
 function M.inspect()
-  local lines = Util.prettify_store(store)
+  local lines = utils().prettify_store(store)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].filetype = 'markdown'
 
-  local newbufnr, win = Util.create_floating_window({
+  local newbufnr, win = utils().create_floating_window({
     title = '~ WinBar Cache Inspector ~',
     buf = buf,
     title_pos = 'center',

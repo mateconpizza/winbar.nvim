@@ -201,4 +201,14 @@ function M.is_narrow(min_width)
   return width < min_width
 end
 
+---@param s string
+function M.err(s)
+  vim.api.nvim_echo({ { '[winbar.nvim] ' .. s, 'ErrorMsg' } }, true, {})
+end
+
+---@param s string
+function M.warn(s)
+  vim.api.nvim_echo({ { '[winbar.nvim] ' .. s, 'WarningMsg' } }, true, {})
+end
+
 return M

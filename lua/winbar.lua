@@ -20,6 +20,29 @@ local function utils()
   return require('winbar.util')
 end
 
+local function highlight()
+  return require('winbar.highlight')
+end
+
+local shown_errors = {}
+
+---@param comp winbar.component
+local function safe_render(comp)
+  local ok, content = pcall(comp.render)
+
+  if not ok then
+    if not shown_errors[comp.name] then
+      shown_errors[comp.name] = true
+      utils().err("component '" .. comp.name .. "' crashed!\n" .. content)
+    end
+
+    local hl = highlight().highlights
+    return highlight().string(hl.diagnostics_error.group, comp.name)
+  end
+
+  return content or ''
+end
+
 ---@class winbar
 local M = {}
 
@@ -53,8 +76,8 @@ function M.render()
   for _, name in ipairs(M.config.layout.left) do
     local component = reg().registry[name]
     if component and component.enabled() then
-      local content = component.render()
-      if content and content ~= '' then table.insert(parts, content) end
+      local content = safe_render(component)
+      if content ~= '' then table.insert(parts, content) end
     end
   end
 
@@ -63,8 +86,8 @@ function M.render()
   for _, name in ipairs(M.config.layout.center) do
     local component = reg().registry[name]
     if component and component.enabled() then
-      local content = component.render()
-      if content and content ~= '' then table.insert(parts, content) end
+      local content = safe_render(component)
+      if content ~= '' then table.insert(parts, content) end
     end
   end
 
@@ -73,8 +96,8 @@ function M.render()
   for _, name in ipairs(M.config.layout.right) do
     local component = reg().registry[name]
     if component and component.enabled() then
-      local content = component.render()
-      if content and content ~= '' then table.insert(parts, content) end
+      local content = safe_render(component)
+      if content ~= '' then table.insert(parts, content) end
     end
   end
 

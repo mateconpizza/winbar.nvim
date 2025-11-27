@@ -33,6 +33,15 @@ function M.set_hl(name, val)
   vim.api.nvim_set_hl(0, name, val)
 end
 
+-- create a string with highlight group applied
+--- @param highlight_group string The highlight group name
+--- @param text string The text to highlight
+--- @return string The formatted highlight string
+function M.string(highlight_group, text)
+  return '%#' .. highlight_group .. '#' .. text .. '%*'
+end
+
+function M.autocmd() end
 ---@param styles winbar.userHighlights
 function M.setup(styles)
   for key, def in pairs(M.highlights) do
