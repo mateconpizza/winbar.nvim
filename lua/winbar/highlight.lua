@@ -13,8 +13,10 @@ local M = {}
 ---@field lsp_status winbar.highlight?    -- highlight for LSP status indicator
 ---@field modified winbar.highlight?      -- highlight for modified buffer symbol
 ---@field readonly winbar.highlight?      -- highlight for readonly indicator
----@field diagnostics winbar.highlight?   -- WIP: highlight for diagnostics section
----@field file_icon winbar.highlight?     -- WIP: highlight for file icon component
+---@field diag_error winbar.highlight?    -- highlight for diagnostics error
+---@field diag_warn winbar.highlight?     -- highlight for diagnostics warning
+---@field diag_info winbar.highlight?     -- highlight for diagnostics info
+---@field diag_hint winbar.highlight?     -- highlight for diagnostics hints
 -- stylua: ignore
 M.highlights = {
   git_branch  = { group = 'WinBarGitBranch',      default = {} },
@@ -24,6 +26,10 @@ M.highlights = {
   diffadded   = { group = 'WinBarGitDiffAdded',   default = {} },
   diffchanged = { group = 'WinBarGitDiffChanged', default = {} },
   diffremoved = { group = 'WinBarGitDiffRemoved', default = {} },
+  diag_error  = { group = 'WinBarDiagnosticError',default = {} },
+  diag_warn   = { group = 'WinBarDiagnosticWarn', default = {} },
+  diag_info   = { group = 'WinBarDiagnosticInfo', default = {} },
+  diag_hint   = { group = 'WinBarDiagnosticHint', default = {} },
 }
 
 -- sets a highlight group
@@ -41,7 +47,6 @@ function M.string(highlight_group, text)
   return '%#' .. highlight_group .. '#' .. text .. '%*'
 end
 
-function M.autocmd() end
 ---@param styles winbar.userHighlights
 function M.setup(styles)
   for key, def in pairs(M.highlights) do

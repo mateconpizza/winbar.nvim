@@ -4,7 +4,7 @@
 ---@field info string? icon for infos.
 ---@field warn string? icon for warnings.
 
----@class winbar.diagnostic
+---@class winbar.diagnostics
 ---@field enabled boolean? enable diagnostics.
 ---@field style 'mini' | 'standard'? diagnostics style (standard or mini).
 ---@field icons winbar.diagnosticIcons?
@@ -66,7 +66,7 @@
 ---@field enabled boolean?
 ---@field update_interval integer? interval in milliseconds
 ---@field filename winbar.filename
----@field diagnostics winbar.diagnostic? diagnostics.
+---@field diagnostics winbar.diagnostics? diagnostics.
 ---@field lsp winbar.lspClients? LSP client name display..
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
@@ -172,6 +172,10 @@ return {
     diffadded = { link = 'Comment' }, -- Git diff added lines highlight
     diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
     diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
+    diagnostics_error = { link = 'DiagnosticError' },
+    diagnostics_warn = { link = 'DiagnosticWarn' },
+    diagnostics_info = { link = 'DiagnosticInfo' },
+    diagnostics_hint = { link = 'DiagnosticHint' },
   },
   -- Dev mode
   dev_mode = false,

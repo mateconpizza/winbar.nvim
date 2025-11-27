@@ -12,8 +12,8 @@ local function autocmd()
   return require('winbar.autocmd')
 end
 
-local function reg()
-  return require('winbar.registry')
+local function cmp()
+  return require('winbar.components')
 end
 
 local function utils()
@@ -37,7 +37,8 @@ local function safe_render(comp)
     end
 
     local hl = highlight().highlights
-    return highlight().string(hl.diagnostics_error.group, comp.name)
+    return highlight().string(hl.diag_error.group, comp.name)
+    -- return ''
   end
 
   return content or ''
@@ -74,7 +75,7 @@ function M.render()
 
   -- left section
   for _, name in ipairs(M.config.layout.left) do
-    local component = reg().registry[name]
+    local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
       if content ~= '' then table.insert(parts, content) end
@@ -84,7 +85,7 @@ function M.render()
   -- center section --
   table.insert(parts, '%=')
   for _, name in ipairs(M.config.layout.center) do
-    local component = reg().registry[name]
+    local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
       if content ~= '' then table.insert(parts, content) end
@@ -94,7 +95,7 @@ function M.render()
   -- right section --
   table.insert(parts, '%=')
   for _, name in ipairs(M.config.layout.right) do
-    local component = reg().registry[name]
+    local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
       if content ~= '' then table.insert(parts, content) end
@@ -119,7 +120,7 @@ function M.setup(opts)
   autocmd().setup(M.config)
 
   -- define all components
-  reg().setup(M.config)
+  cmp().setup(M.config)
 
   -- apply highlights
   require('winbar.highlight').setup(M.config.styles)
