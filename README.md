@@ -176,6 +176,10 @@ require('winbar').setup({
     diffadded = { link = 'Comment' }, -- Git diff added lines highlight
     diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
     diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
+    diag_error = { link = 'DiagnosticError' }, -- Lsp Diagnostic error highlight
+    diag_warn = { link = 'DiagnosticWarn' }, -- Lsp Diagnostic warning highlight
+    diag_info = { link = 'DiagnosticInfo' }, -- Lsp Diagnostic info highlight
+    diag_hint = { link = 'DiagnosticHint' }, -- Lsp Diagnostic hint highlight
   },
 })
 ```
@@ -195,5 +199,14 @@ require('winbar').setup({
 | `WinBarGitDiffAdded`   | Comment    | Git diff added lines highlight      |
 | `WinBarGitDiffChanged` | Comment    | Git diff changed lines highlight    |
 | `WinBarGitDiffRemoved` | Comment    | Git diff removed lines highlight    |
+
+</details>
+
+<details>
+<summary><strong>Visible elements</strong></summary>
+
+- Terminal: [st-terminal](https://st.suckless.org/)
+- Font: [maple-font](https://github.com/subframe7536/maple-font)
+- Theme: built-in `Retrobox`
 
 </details>
