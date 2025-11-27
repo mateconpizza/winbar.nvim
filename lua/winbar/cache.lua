@@ -9,6 +9,8 @@ local function health()
   return require('winbar.health')
 end
 
+local augroup_cache = utils().augroup('cache')
+
 local shown_errors = {}
 
 ---@param ttl_ms number|nil time to live in milliseconds. If nil, lives forever.
@@ -19,6 +21,9 @@ local function calculate_expiry(ttl_ms)
 end
 
 local M = {}
+
+-- cache autocommand group
+M.augroup = augroup_cache
 
 -- store whether lsp is attached per buffer
 ---@type table<integer, boolean>

@@ -8,10 +8,6 @@
 ---
 ---@brief ]]
 
-local function autocmd()
-  return require('winbar.autocmd')
-end
-
 local function cmp()
   return require('winbar.components')
 end
@@ -26,6 +22,10 @@ end
 
 local function health()
   return require('winbar.health')
+end
+
+local function cache()
+  return require('winbar.cache')
 end
 
 local shown_errors = {}
@@ -52,6 +52,20 @@ end
 local M = {}
 
 M.config = require('winbar.config')
+
+M.usercmd = {
+  -- simple floating window for checking current cache state.
+  inspect = 'WinBarCacheInspect',
+
+  -- simple toggle winbar
+  toggle = 'WinBarToggle',
+}
+
+-- clear all autocmds in the augroup
+function M.disable()
+  vim.api.nvim_clear_autocmds({ group = cache().augroup })
+  cache().reset()
+end
 
 -- render the winbar content based on configuration and current buffer state.
 function M.render()
@@ -122,9 +136,6 @@ function M.setup(opts)
 
   health().validate(M.config)
 
-  -- setup autocmd
-  autocmd().setup(M.config)
-
   -- define all components
   cmp().setup(M.config)
 
@@ -135,22 +146,22 @@ function M.setup(opts)
   _G._winbar_render = M.render
 
   -- user commands
-  vim.api.nvim_create_user_command(autocmd().cmd.toggle, function()
+  vim.api.nvim_create_user_command(M.usercmd.toggle, function()
     M.config.enabled = not M.config.enabled
     if not M.config.enabled then
       vim.o.winbar = ''
-      autocmd().disable()
+      M.disable()
 
       return
     end
 
     vim.o.winbar = '%{%v:lua._winbar_render()%}'
-    autocmd().setup(M.config)
+    cmp().setup(M.config)
   end, {})
 
   if M.config.dev_mode then
-    vim.api.nvim_create_user_command(autocmd().cmd.inspect, function()
-      require('winbar.cache').inspect()
+    vim.api.nvim_create_user_command(M.usercmd.inspect, function()
+      cache().inspect()
     end, {})
   end
 

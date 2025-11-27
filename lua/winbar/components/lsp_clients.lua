@@ -43,6 +43,18 @@ function M.render()
   end)
 end
 
+function M.autocmd()
+  vim.api.nvim_create_autocmd('LspDetach', {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      cache().lsp_attached[bufnr] = nil
+      cache().invalidate(M.name, bufnr)
+    end,
+    desc = 'clear cache when LSP client detaches from buffer',
+  })
+end
+
 ---@param opts winbar.lspClients
 ---@return winbar.component
 function M.setup(opts)

@@ -17,6 +17,7 @@ local M = {}
 
 M.name = 'git_branch'
 M.side = 'left'
+M.interval_ms = nil
 function M.enabled()
   return M.opts.enabled
 end
@@ -46,10 +47,28 @@ function M.render()
   end)
 end
 
+function M.autocmd()
+  vim.api.nvim_create_autocmd({ 'DirChanged', 'BufEnter' }, {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+
+      if not utils().is_normal_buffer(bufnr) then return end
+      if not utils().is_visible_in_normal_win(bufnr) then return end
+
+      cache().invalidate(M.name, bufnr)
+      utils().throttled_redraw(M.interval_ms)
+    end,
+    desc = 'update git branch display when directory or buffer changes',
+  })
+end
+
 ---@param opts winbar.gitbranch
+---@param interval_ms integer
 ---@return winbar.component
-function M.setup(opts)
+function M.setup(opts, interval_ms)
   M.opts = opts or {}
+  M.interval_ms = interval_ms
   return M
 end
 

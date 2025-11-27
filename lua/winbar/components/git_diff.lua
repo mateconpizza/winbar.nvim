@@ -77,6 +77,22 @@ function M.render()
   end, M.interval_ms)
 end
 
+function M.autocmd()
+  vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+
+      if not utils().is_normal_buffer(bufnr) then return end
+      if not utils().is_visible_in_normal_win(bufnr) then return end
+
+      cache().invalidate(M.name, bufnr)
+      utils().throttled_redraw(M.interval_ms)
+    end,
+    desc = 'refresh git diff status after file writes or buffer switches',
+  })
+end
+
 ---@param opts winbar.gitdiff
 ---@param interval_ms integer
 ---@return winbar.component

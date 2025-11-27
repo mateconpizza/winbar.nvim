@@ -2,6 +2,10 @@ local function utils()
   return require('winbar.util')
 end
 
+local function cache()
+  return require('winbar.cache')
+end
+
 ---@class winbar.components
 ---@field filename winbar.components.filename
 ---@field fileicon winbar.components.fileicon
@@ -28,10 +32,23 @@ setmetatable(M, {
 ---@field opts? table|boolean|string
 ---@field side? 'left'|'center'|'right' which side of the winbar (optional)
 ---@field interval_ms? integer
+---@field autocmd? fun()
 
 -- component registry
 ---@type table<string, winbar.component>
 M.registry = {}
+
+function M.cleanup()
+  vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      if not utils().is_normal_buffer(bufnr) then return end
+      cache().prune(bufnr)
+    end,
+    desc = 'remove cache entries when buffers are deleted or wiped out',
+  })
+end
 
 -- register a component
 ---@param c winbar.component
@@ -52,7 +69,7 @@ function M.setup(c)
     { 'readonly',         c.icons.readonly },
     -- { 'fileicon',         c.filename.icon },
     { 'filename',         c.filename },
-    { 'git_branch',       c.git.branch },
+    { 'git_branch',       c.git.branch, c.update_interval },
     { 'git_diff',         c.git.diff, c.update_interval },
     { 'lsp_clients',      c.lsp },
     { 'lsp_diagnostics',  c.diagnostics, c.update_interval },
@@ -62,6 +79,7 @@ function M.setup(c)
     local name, cfg, _interval = unpack(item)
     local module = M[name]
     if module and module.setup then M.register(module.setup(cfg, _interval)) end
+    if module and module.autocmd then module.autocmd() end
   end
 end
 

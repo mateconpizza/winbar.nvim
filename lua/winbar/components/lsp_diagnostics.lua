@@ -90,6 +90,42 @@ function M.render()
   end, M.interval_ms)
 end
 
+function M.autocmd()
+  vim.api.nvim_create_autocmd('DiagnosticChanged', {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      if not utils().is_normal_buffer(bufnr) or not utils().is_visible_in_normal_win(bufnr) then return end
+      cache().invalidate(M.name, bufnr)
+      utils().throttled_redraw(M.interval_ms)
+    end,
+    desc = 'reset LSP diagnostics on change',
+  })
+
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      if not utils().is_normal_buffer(bufnr) or not utils().is_visible_in_normal_win(bufnr) then return end
+
+      cache().lsp_attached[bufnr] = true
+      cache().invalidate(M.name, bufnr)
+      utils().throttled_redraw(M.interval_ms)
+    end,
+    desc = 'register LSP attach/detach events',
+  })
+
+  -- clear diagnostics cache
+  vim.api.nvim_create_autocmd('LspDetach', {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      cache().invalidate(M.name, bufnr)
+    end,
+    desc = 'clear LSP diagnostics cache on LSP detach',
+  })
+end
+
 ---@param opts winbar.diagnostics
 ---@param interval_ms integer
 ---@return winbar.component

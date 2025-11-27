@@ -116,8 +116,8 @@ return {
   },
   -- Diagnostics configuration
   diagnostics = {
-    enabled = true, -- Show diagnostics (LSP/linters)
-    style = 'standard', -- Display style ("standard" or "mini")
+    enabled = true, -- Show diagnostics
+    style = 'standard', -- Display style (`standard` or `mini`)
     icons = { -- Diagnostic severity icons
       error = 'e:',
       hint = 'h:',
