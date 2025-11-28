@@ -55,11 +55,24 @@ function M.cleanup()
   })
 end
 
+---@param c winbar.component
+function M.add_component(c)
+  -- WIP:
+  -- if c and c.setup then M.register(c.setup(cfg, _interval)) end
+  if c and c.autocmd then c.autocmd() end
+  if c and c.highlights then highlight().merge(c.highlights) end
+  M.register(c)
+end
+
 -- register a component
 ---@param c winbar.component
 function M.register(c)
-  if not c.name or not c.render then
-    utils().err('invalid component registration: missing name or render()')
+  local missing = vim.tbl_filter(function(field)
+    return not c[field]
+  end, { 'name', 'side', 'render' })
+
+  if #missing > 0 then
+    utils().err('invalid component: missing ' .. table.concat(missing, ', '))
     return
   end
 

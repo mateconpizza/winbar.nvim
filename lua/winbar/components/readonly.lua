@@ -13,7 +13,7 @@ end
 ---@class winbar.userHighlights
 ---@field modified winbar.highlight? LSP client name highlights.
 M.highlights = {
-  modified = { group = 'WinBarModified', default = { link = 'WarningMsg' } },
+  readonly = { group = 'WinBarReadonly', default = { link = 'ErrorMsg' } },
 }
 
 function M.render()
