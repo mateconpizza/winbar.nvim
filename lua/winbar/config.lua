@@ -1,3 +1,13 @@
+local M = {}
+
+M.commands = {
+  -- simple floating window for checking current cache state.
+  inspect = 'WinBarCacheInspect',
+
+  -- simple toggle winbar
+  toggle = 'WinBarToggle',
+}
+
 ---@class winbar.diagnosticIcons
 ---@field error string? icon for errors.
 ---@field hint string? icon for hints.
@@ -66,7 +76,7 @@
 ---@field layout winbar.layout?
 ---@field highlights winbar.userHighlights? winbar highlights.
 ---@field dev_mode? boolean @private -- enable debug features
-return {
+M.config = {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
   update_interval = 1000, -- How much to wait in milliseconds before update (git diff, diagnostics)
@@ -159,3 +169,5 @@ return {
   -- Dev mode
   dev_mode = false,
 }
+
+return M

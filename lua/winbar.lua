@@ -28,6 +28,10 @@ local function cache()
   return require('winbar.cache')
 end
 
+local function defaults()
+  return require('winbar.config')
+end
+
 local shown_errors = {}
 
 ---@param comp winbar.component
@@ -47,18 +51,10 @@ local function safe_render(comp)
   return content or ''
 end
 
+local config = defaults().config
+
 ---@class winbar
 local M = {}
-
-M.config = require('winbar.config')
-
-M.usercmd = {
-  -- simple floating window for checking current cache state.
-  inspect = 'WinBarCacheInspect',
-
-  -- simple toggle winbar
-  toggle = 'WinBarToggle',
-}
 
 -- clear all autocmds in the augroup
 function M.disable()
@@ -68,9 +64,9 @@ end
 
 -- render the winbar content based on configuration and current buffer state.
 function M.render()
-  if utils().is_special_buffer(M.config.exclusions.buftypes, M.config.exclusions.filetypes) then return '' end
+  if utils().is_special_buffer(config.exclusions.buftypes, config.exclusions.filetypes) then return '' end
 
-  if not M.config.show_single_buffer then
+  if not config.show_single_buffer then
     local visible_buffers = vim.tbl_filter(function(buf)
       -- count visibles buffers only. Ignore floating windows (fzf-lua, Mason, etc)
       return vim.api.nvim_buf_is_loaded(buf)
@@ -91,7 +87,7 @@ function M.render()
   local parts = {}
 
   -- left section
-  for _, name in ipairs(M.config.layout.left) do
+  for _, name in ipairs(config.layout.left) do
     local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
@@ -101,7 +97,7 @@ function M.render()
 
   -- center section --
   table.insert(parts, '%=')
-  for _, name in ipairs(M.config.layout.center) do
+  for _, name in ipairs(config.layout.center) do
     local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
@@ -111,7 +107,7 @@ function M.render()
 
   -- right section --
   table.insert(parts, '%=')
-  for _, name in ipairs(M.config.layout.right) do
+  for _, name in ipairs(config.layout.right) do
     local component = cmp().registry[name]
     if component and component.enabled() then
       local content = safe_render(component)
@@ -124,30 +120,30 @@ end
 
 ---@param opts? winbar.config
 function M.setup(opts)
-  M.config = vim.tbl_deep_extend('force', M.config, opts or {})
+  config = vim.tbl_deep_extend('force', config, opts or {})
 
-  health().validate(M.config)
+  health().validate(config)
 
   -- setup all components
-  cmp().setup(M.config)
+  cmp().setup(config)
 
   -- highlights are replaced entirely
   if opts and opts.highlights then
     for key, style in pairs(opts.highlights) do
-      M.config.highlights[key] = style
+      config.highlights[key] = style
     end
   end
 
   -- apply highlights
-  highlight().setup(M.config.highlights)
+  highlight().setup(config.highlights)
 
   -- global function
   _G._winbar_render = M.render
 
   -- user commands
-  vim.api.nvim_create_user_command(M.usercmd.toggle, function()
-    M.config.enabled = not M.config.enabled
-    if not M.config.enabled then
+  vim.api.nvim_create_user_command(defaults().commands.toggle, function()
+    config.enabled = not config.enabled
+    if not config.enabled then
       vim.o.winbar = ''
       M.disable()
 
@@ -155,16 +151,16 @@ function M.setup(opts)
     end
 
     vim.o.winbar = '%{%v:lua._winbar_render()%}'
-    cmp().setup(M.config)
+    cmp().setup(config)
   end, {})
 
-  if M.config.dev_mode then
-    vim.api.nvim_create_user_command(M.usercmd.inspect, function()
+  if config.dev_mode then
+    vim.api.nvim_create_user_command(defaults().commands.inspect, function()
       cache().inspect()
     end, {})
   end
 
-  if not M.config.enabled then return end
+  if not config.enabled then return end
   vim.o.winbar = '%{%v:lua._winbar_render()%}'
 end
 
