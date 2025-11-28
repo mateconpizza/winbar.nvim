@@ -25,6 +25,12 @@ end
 ---@type winbar.gitbranch
 M.opts = {}
 
+---@class winbar.userHighlights
+---@field git_branch winbar.highlight? git branch highlight
+M.highlights = {
+  git_branch = { group = 'WinBarGitBranch', default = { link = 'Comment' } },
+}
+
 function M.render()
   local bufnr = vim.api.nvim_get_current_buf()
   if utils().is_narrow(M.opts.min_width) then return '' end
@@ -32,18 +38,17 @@ function M.render()
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   if bufname == '' then return '' end
   local icon = M.opts.icon
-  local hl = highlight().highlights
 
   return cache().ensure(M.name, bufnr, function()
     -- check for external plugin
     local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-    if branch ~= nil then return highlight().string(hl.git_branch.group, icon .. ' ' .. branch) end
+    if branch ~= nil then return highlight().string(M.highlights.git_branch.group, icon .. ' ' .. branch) end
 
     -- fallback
     branch = utils().git_branch()
     if not branch then return '' end
 
-    return highlight().string(hl.git_branch.group, icon .. ' ' .. branch)
+    return highlight().string(M.highlights.git_branch.group, icon .. ' ' .. branch)
   end)
 end
 

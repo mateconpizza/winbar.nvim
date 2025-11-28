@@ -40,8 +40,7 @@ local function safe_render(comp)
       utils().err("component '" .. comp.name .. "' crashed!\n" .. content)
     end
 
-    local hl = highlight().highlights
-    return highlight().string(hl.diag_error.group, comp.name)
+    return highlight().string('ErrorMsg', comp.name)
     -- return ''
   end
 
@@ -127,20 +126,20 @@ end
 function M.setup(opts)
   M.config = vim.tbl_deep_extend('force', M.config, opts or {})
 
-  -- styles are replaced entirely
-  if opts and opts.styles then
-    for key, style in pairs(opts.styles) do
-      M.config.styles[key] = style
+  health().validate(M.config)
+
+  -- setup all components
+  cmp().setup(M.config)
+
+  -- highlights are replaced entirely
+  if opts and opts.highlights then
+    for key, style in pairs(opts.highlights) do
+      M.config.highlights[key] = style
     end
   end
 
-  health().validate(M.config)
-
-  -- define all components
-  cmp().setup(M.config)
-
   -- apply highlights
-  require('winbar.highlight').setup(M.config.styles)
+  highlight().setup(M.config.highlights)
 
   -- global function
   _G._winbar_render = M.render

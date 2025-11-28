@@ -26,15 +26,6 @@
 ---@field right string[]? ordered list of right-aligned component names.
 
 ---@class winbar.userHighlights
----@field winbar winbar.highlightAttrs? active window WinBar highlight
----@field winbarnc winbar.highlightAttrs? inactive window WinBar highlight
----@field lsp_status winbar.highlightAttrs? LSP client name highlights.
----@field readonly winbar.highlightAttrs? read-only indicator highlight
----@field modified winbar.highlightAttrs? modified buffer indicator highlight
----@field git_branch winbar.highlightAttrs? git branch highlights.
----@field diffadded winbar.highlightAttrs? git diff added lines highlight
----@field diffchanged winbar.highlightAttrs? git diff changed lines highlight
----@field diffremoved winbar.highlightAttrs? git diff removed lines highlight
 
 ---@class winbar.exclusions
 ---@field filetypes string[]? filetypes to exclude from WinBar display.
@@ -73,7 +64,7 @@
 ---@field exclusions table<string, string[]>?
 ---@field git winbar.git?
 ---@field layout winbar.layout?
----@field styles winbar.userHighlights? winbar highlights.
+---@field highlights winbar.userHighlights? winbar highlights.
 ---@field dev_mode? boolean @private -- enable debug features
 return {
   -- Core behavior
@@ -164,19 +155,7 @@ return {
     },
   },
   -- Highlight groups
-  styles = {
-    lsp_status = { link = 'Comment' }, -- LSP client highlight
-    readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
-    modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
-    git_branch = { link = 'Comment' }, -- Git branch highlight
-    diffadded = { link = 'Comment' }, -- Git diff added lines highlight
-    diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
-    diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
-    diag_error = { link = 'DiagnosticError' }, -- Lsp Diagnostic error highlight
-    diag_warn = { link = 'DiagnosticWarn' }, -- Lsp Diagnostic warning highlight
-    diag_info = { link = 'DiagnosticInfo' }, -- Lsp Diagnostic info highlight
-    diag_hint = { link = 'DiagnosticHint' }, -- Lsp Diagnostic hint highlight
-  },
+  highlights = {},
   -- Dev mode
   dev_mode = false,
 }

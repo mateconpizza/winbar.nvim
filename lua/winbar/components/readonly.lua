@@ -1,9 +1,5 @@
 -- comp/readonly.lua
 
-local function highlight()
-  return require('winbar.highlight').highlights
-end
-
 ---@class winbar.components.readonly: winbar.component
 local M = {}
 
@@ -14,8 +10,14 @@ function M.enabled()
   return vim.bo.readonly
 end
 
+---@class winbar.userHighlights
+---@field modified winbar.highlight? LSP client name highlights.
+M.highlights = {
+  modified = { group = 'WinBarModified', default = { link = 'WarningMsg' } },
+}
+
 function M.render()
-  return '%#' .. highlight().readonly.group .. '#' .. M.icon .. '%*'
+  return '%#' .. M.highlights.readonly.group .. '#' .. M.icon .. '%*'
 end
 
 ---@param icon string

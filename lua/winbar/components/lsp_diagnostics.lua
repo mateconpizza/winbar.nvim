@@ -15,12 +15,12 @@ end
 -- formats diagnostic counts in standard mode
 ---@param counts table
 ---@param icons winbar.diagnosticIcons
+---@param hl winbar.userHighlights
 ---@return string
-local function format_standard(counts, icons)
+local function format_standard(counts, icons, hl)
   if vim.o.columns < 60 then return '' end
   icons = icons or {}
   local components = {}
-  local hl = highlight().highlights
 
   if counts.errors > 0 then
     table.insert(components, highlight().string(hl.diag_error.group, icons.error .. counts.errors))
@@ -40,12 +40,13 @@ end
 
 -- formats diagnostic counts in minimalist mode
 ---@param counts table
+---@param hl winbar.userHighlights
 ---@return string
-local function format_mini(counts, bug_icon)
+local function format_mini(counts, bug_icon, hl)
   bug_icon = bug_icon or ''
   local components = {}
   if counts.errors == 0 then return '' end
-  table.insert(components, '%#DiagnosticError#' .. bug_icon .. ' ' .. counts.errors .. '%*')
+  table.insert(components, '%#' .. hl.diag_error.group .. '#' .. bug_icon .. ' ' .. counts.errors .. '%*')
   return table.concat(components, ' ')
 end
 
@@ -72,6 +73,19 @@ function M.enabled()
   return M.opts.enabled
 end
 
+-- stylua: ignore
+---@class winbar.userHighlights
+---@field diag_error winbar.highlight? diagnostic error highlight
+---@field diag_warn winbar.highlight? diagnostic warning highlight
+---@field diag_info winbar.highlight? diagnostic info highlight
+---@field diag_hint winbar.highlight? diagnostic hint highlight
+M.highlights = {
+  diag_error  = { group = 'WinBarDiagnosticError',default = { link = 'DiagnosticError'  } },
+  diag_warn   = { group = 'WinBarDiagnosticWarn', default = { link = 'DiagnosticWarn'   } },
+  diag_info   = { group = 'WinBarDiagnosticInfo', default = { link = 'DiagnosticInfo'   } },
+  diag_hint   = { group = 'WinBarDiagnosticHint', default = { link = 'DiagnosticHint'   } },
+}
+
 ---@type winbar.diagnostics
 M.opts = {}
 
@@ -85,8 +99,8 @@ function M.render()
 
   return cache().ensure(M.name, bufnr, function()
     local counts = get_diagnostic_counts(bufnr)
-    if M.opts.style == 'mini' then return format_mini(counts, icons.error) end
-    return format_standard(counts, icons)
+    if M.opts.style == 'mini' then return format_mini(counts, icons.error, M.highlights) end
+    return format_standard(counts, icons, M.highlights)
   end, M.interval_ms)
 end
 

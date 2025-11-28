@@ -8,10 +8,6 @@ local function utils()
   return require('winbar.util')
 end
 
-local function highlight()
-  return require('winbar.highlight').highlights
-end
-
 -- parse a git diff stat string
 ---@param diffstat string
 ---@return table<string, integer>
@@ -34,19 +30,29 @@ local function parse_diffstat(diffstat)
 end
 
 ---@param c winbar.gitdiff
+---@param highlights winbar.userHighlights
 ---@param diffstat string
-local function format_gitdiff_output(c, diffstat)
+local function format_gitdiff_output(c, highlights, diffstat)
   local hunks = parse_diffstat(diffstat)
-  local h = highlight()
   local parts = {}
+
   if hunks.added > 0 then
-    table.insert(parts, '%#' .. h.diffadded.group .. '#' .. string.format('%s%d', c.added, hunks.added) .. '%*')
+    table.insert(
+      parts,
+      '%#' .. highlights.diffadded.group .. '#' .. string.format('%s%d', c.added, hunks.added) .. '%*'
+    )
   end
   if hunks.changed > 0 then
-    table.insert(parts, '%#' .. h.diffchanged.group .. '#' .. string.format('%s%d', c.changed, hunks.changed) .. '%*')
+    table.insert(
+      parts,
+      '%#' .. highlights.diffchanged.group .. '#' .. string.format('%s%d', c.changed, hunks.changed) .. '%*'
+    )
   end
   if hunks.removed > 0 then
-    table.insert(parts, '%#' .. h.diffremoved.group .. '#' .. string.format('%s%d', c.removed, hunks.removed) .. '%*')
+    table.insert(
+      parts,
+      '%#' .. highlights.diffremoved.group .. '#' .. string.format('%s%d', c.removed, hunks.removed) .. '%*'
+    )
   end
 
   return table.concat(parts, ' ')
@@ -65,6 +71,17 @@ end
 ---@type winbar.gitdiff
 M.opts = {}
 
+-- stylua: ignore
+---@class winbar.userHighlights
+---@field diffadded winbar.highlight? git diff added lines highlight
+---@field diffchanged winbar.highlight? git diff changed lines highlight
+---@field diffremoved winbar.highlight? git diff removed lines highlight
+M.highlights = {
+  diffadded   = { group = 'WinBarGitDiffAdded',   default = { link = 'Comment' } },
+  diffchanged = { group = 'WinBarGitDiffChanged', default = { link = 'Comment' } },
+  diffremoved = { group = 'WinBarGitDiffRemoved', default = { link = 'Comment' } },
+}
+
 function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
   local bufnr = vim.api.nvim_get_current_buf()
@@ -73,7 +90,7 @@ function M.render()
     local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
     if diffstat == nil then return '' end
 
-    return format_gitdiff_output(M.opts, diffstat)
+    return format_gitdiff_output(M.opts, M.highlights, diffstat)
   end, M.interval_ms)
 end
 

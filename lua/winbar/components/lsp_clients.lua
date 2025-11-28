@@ -9,10 +9,6 @@ local function utils()
   return require('winbar.util')
 end
 
-local function highlight()
-  return require('winbar.highlight').highlights
-end
-
 ---@class winbar.components.lsp_clients: winbar.component
 local M = {}
 
@@ -24,6 +20,12 @@ end
 
 ---@type winbar.lspClients
 M.opts = {}
+
+---@class winbar.userHighlights
+---@field lsp_status winbar.highlight? LSP client name highlights.
+M.highlights = {
+  lsp_status = { group = 'WinBarLspStatus', default = { link = 'Comment' } },
+}
 
 function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
@@ -39,7 +41,7 @@ function M.render()
     end
     local result = M.opts.format(table.concat(names, M.opts.separator))
 
-    return '%#' .. highlight().lsp_status.group .. '#' .. result .. '%*'
+    return '%#' .. M.highlights.lsp_status.group .. '#' .. result .. '%*'
   end)
 end
 

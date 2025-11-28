@@ -6,6 +6,10 @@ local function cache()
   return require('winbar.cache')
 end
 
+local function highlight()
+  return require('winbar.highlight')
+end
+
 ---@class winbar.components
 ---@field filename winbar.components.filename
 ---@field fileicon winbar.components.fileicon
@@ -15,7 +19,6 @@ end
 ---@field gitdiff winbar.components.gitdiff
 ---@field lsp_clients winbar.components.lsp_clients
 ---@field lsp_diagnostics winbar.components.lsp_diagnostics
----@field pomodoro winbar.components.pomodoro
 local M = {}
 
 setmetatable(M, {
@@ -26,13 +29,15 @@ setmetatable(M, {
 })
 
 ---@class winbar.component
----@field name string component identifier
----@field enabled fun(): boolean check if component should be rendered
----@field render fun(): string|nil render the component content
----@field opts? table|boolean|string
----@field side? 'left'|'center'|'right' which side of the winbar (optional)
----@field interval_ms? integer
----@field autocmd? fun()
+---@field name string                               -- unique identifier
+---@field side 'left'|'center'|'right'             -- position in winbar
+---@field enabled fun(): boolean                    -- check if it should render
+---@field render fun(): string|nil                  -- return content or nil to hide
+---@field opts? table|boolean|string                -- component options
+---@field interval_ms? integer                      -- redraw throttle interval
+---@field autocmd? fun()                            -- define autocmds
+---@field highlights? winbar.highlight[]            -- component highlights groups
+---@field setup? fun(opts?: table|boolean|string, interval_ms?: integer|string): winbar.component
 
 -- component registry
 ---@type table<string, winbar.component>
@@ -67,7 +72,6 @@ function M.setup(c)
   local components = {
     { 'modified',         c.icons.modified },
     { 'readonly',         c.icons.readonly },
-    -- { 'fileicon',         c.filename.icon },
     { 'filename',         c.filename },
     { 'git_branch',       c.git.branch, c.update_interval },
     { 'git_diff',         c.git.diff, c.update_interval },
@@ -77,10 +81,16 @@ function M.setup(c)
 
   for _, item in ipairs(components) do
     local name, cfg, _interval = unpack(item)
+
+    ---@type winbar.component
     local module = M[name]
     if module and module.setup then M.register(module.setup(cfg, _interval)) end
     if module and module.autocmd then module.autocmd() end
+    if module and module.highlights then highlight().merge(module.highlights) end
   end
+
+  -- setup cleanup autocmd
+  M.cleanup()
 end
 
 return M

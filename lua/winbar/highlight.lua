@@ -5,38 +5,22 @@
 local M = {}
 
 ---@class winbar.highlight
----@field group string                    -- the actual highlight group name (used in :hi)
----@field default winbar.highlightAttrs   -- default highlight attributes for this group
+---@field group? string                    -- the actual highlight group name (used in :hi)
+---@field default? winbar.highlightAttrs   -- default highlight attributes for this group
 
 ---@class winbar.highlights
----@field git_branch winbar.highlight?    -- highlight for Git branch component
----@field lsp_status winbar.highlight?    -- highlight for LSP status indicator
----@field modified winbar.highlight?      -- highlight for modified buffer symbol
----@field readonly winbar.highlight?      -- highlight for readonly indicator
----@field diag_error winbar.highlight?    -- highlight for diagnostics error
----@field diag_warn winbar.highlight?     -- highlight for diagnostics warning
----@field diag_info winbar.highlight?     -- highlight for diagnostics info
----@field diag_hint winbar.highlight?     -- highlight for diagnostics hints
--- stylua: ignore
-M.highlights = {
-  git_branch  = { group = 'WinBarGitBranch',      default = {} },
-  lsp_status  = { group = 'WinBarLspStatus',      default = {} },
-  readonly    = { group = 'WinBarReadonly',       default = {} },
-  modified    = { group = 'WinBarModified',       default = {} },
-  diffadded   = { group = 'WinBarGitDiffAdded',   default = {} },
-  diffchanged = { group = 'WinBarGitDiffChanged', default = {} },
-  diffremoved = { group = 'WinBarGitDiffRemoved', default = {} },
-  diag_error  = { group = 'WinBarDiagnosticError',default = {} },
-  diag_warn   = { group = 'WinBarDiagnosticWarn', default = {} },
-  diag_info   = { group = 'WinBarDiagnosticInfo', default = {} },
-  diag_hint   = { group = 'WinBarDiagnosticHint', default = {} },
-}
+M.highlights = {}
 
 -- sets a highlight group
 ---@param name string
 ---@param val any
-function M.set_hl(name, val)
+function M.set_highlight(name, val)
   vim.api.nvim_set_hl(0, name, val)
+end
+
+---@param highlights winbar.highlight[]
+function M.merge(highlights)
+  M.highlights = vim.tbl_deep_extend('force', M.highlights or {}, highlights or {})
 end
 
 -- create a string with highlight group applied
@@ -47,13 +31,14 @@ function M.string(highlight_group, text)
   return '%#' .. highlight_group .. '#' .. text .. '%*'
 end
 
----@param styles winbar.userHighlights
-function M.setup(styles)
+---@param highlights winbar.userHighlights
+function M.setup(highlights)
   for key, def in pairs(M.highlights) do
     if vim.fn.hlexists(def.group) == 0 then
-      local style = styles[key]
+      local style = highlights[key]
       local attrs = style or def.default
-      M.set_hl(def.group, attrs)
+
+      M.set_highlight(def.group, attrs)
     end
   end
 end
