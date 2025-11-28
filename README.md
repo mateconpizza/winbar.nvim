@@ -168,19 +168,7 @@ require('winbar').setup({
     },
   },
   -- Highlight groups
-  styles = {
-    lsp_status = { link = 'Comment' }, -- LSP client highlight
-    readonly = { link = 'ErrorMsg' }, -- Read-only indicator highlight
-    modified = { link = 'WarningMsg' }, -- Modified buffer indicator highlight
-    git_branch = { link = 'Comment' }, -- Git branch highlight
-    diffadded = { link = 'Comment' }, -- Git diff added lines highlight
-    diffchanged = { link = 'Comment' }, -- Git diff changed lines highlight
-    diffremoved = { link = 'Comment' }, -- Git diff removed lines highlight
-    diag_error = { link = 'DiagnosticError' }, -- Lsp Diagnostic error highlight
-    diag_warn = { link = 'DiagnosticWarn' }, -- Lsp Diagnostic warning highlight
-    diag_info = { link = 'DiagnosticInfo' }, -- Lsp Diagnostic info highlight
-    diag_hint = { link = 'DiagnosticHint' }, -- Lsp Diagnostic hint highlight
-  },
+  highlights = {},
 })
 ```
 
@@ -188,17 +176,24 @@ require('winbar').setup({
 
 <details>
 <summary><strong>Highlight groups</strong></summary>
+
 ## Highlight groups
 
-| Group                  | Default    | Description                         |
-| ---------------------- | ---------- | ----------------------------------- |
-| `WinBarLspStatus`      | Comment    | LSP client highlight                |
-| `WinBarReadonly`       | ErrorMsg   | Read-only indicator highlight       |
-| `WinBarModified`       | WarningMsg | Modified buffer indicator highlight |
-| `WinBarGitBranch`      | Comment    | Git branch highlight                |
-| `WinBarGitDiffAdded`   | Comment    | Git diff added lines highlight      |
-| `WinBarGitDiffChanged` | Comment    | Git diff changed lines highlight    |
-| `WinBarGitDiffRemoved` | Comment    | Git diff removed lines highlight    |
+### Built-in components
+
+| Group                   | Default         | Description                              |
+| ----------------------- | --------------- | ---------------------------------------- |
+| `WinBarReadonly`        | ErrorMsg        | File read-only indicator highlight       |
+| `WinBarModified`        | WarningMsg      | File modified buffer indicator highlight |
+| `WinBarGitBranch`       | Comment         | Git branch highlight                     |
+| `WinBarGitDiffAdded`    | Comment         | Git diff added lines highlight           |
+| `WinBarGitDiffChanged`  | Comment         | Git diff changed lines highlight         |
+| `WinBarGitDiffRemoved`  | Comment         | Git diff removed lines highlight         |
+| `WinBarLspStatus`       | Comment         | LSP client highlight                     |
+| `WinBarDiagnosticError` | DiagnosticError | LSP Diagnostic error highlight           |
+| `WinBarDiagnosticWarn`  | DiagnosticWarn  | LSP Diagnostic warning highlight         |
+| `WinBarDiagnosticInfo`  | DiagnosticInfo  | LSP Diagnostic info highlight            |
+| `WinBarDiagnosticHint`  | DiagnosticHint  | LSP Diagnostic hint highlight            |
 
 </details>
 
@@ -207,6 +202,6 @@ require('winbar').setup({
 
 - Terminal: [st-terminal](https://st.suckless.org/)
 - Font: [maple-font](https://github.com/subframe7536/maple-font)
-- Theme: built-in `Retrobox`
+- Coloscheme: built-in `Retrobox`
 
 </details>
