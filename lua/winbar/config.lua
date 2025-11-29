@@ -35,8 +35,6 @@ M.commands = {
 ---@field center string[]? ordered list of center component names.
 ---@field right string[]? ordered list of right-aligned component names.
 
----@class winbar.userHighlights
-
 ---@class winbar.exclusions
 ---@field filetypes string[]? filetypes to exclude from WinBar display.
 ---@field buftypes string[]? buffer types to exclude from WinBar display.

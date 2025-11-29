@@ -36,7 +36,7 @@ setmetatable(M, {
 ---@field opts? table|boolean|string                -- component options
 ---@field interval_ms? integer                      -- redraw throttle interval
 ---@field autocmd? fun()                            -- define autocmds
----@field highlights? winbar.highlight[]            -- component highlights groups
+---@field highlights? winbar.HighlightAttrs[]       -- component highlights groups
 ---@field setup? fun(opts?: table|boolean|string, interval_ms?: integer|string): winbar.component
 
 -- component registry
@@ -82,7 +82,7 @@ end
 ---@param c winbar.config
 function M.setup(c)
   -- stylua: ignore
-  local components = {
+  local builtin_components = {
     { 'modified',         c.icons.modified },
     { 'readonly',         c.icons.readonly },
     { 'filename',         c.filename },
@@ -92,7 +92,7 @@ function M.setup(c)
     { 'lsp_diagnostics',  c.diagnostics, c.update_interval },
   }
 
-  for _, item in ipairs(components) do
+  for _, item in ipairs(builtin_components) do
     local name, cfg, _interval = unpack(item)
 
     ---@type winbar.component

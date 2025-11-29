@@ -22,9 +22,9 @@ end
 M.opts = {}
 
 ---@class winbar.userHighlights
----@field lsp_status winbar.highlight? LSP client name highlights.
+---@field WinBarLspStatus winbar.HighlightAttrs? LSP client name highlights.
 M.highlights = {
-  lsp_status = { group = 'WinBarLspStatus', default = { link = 'Comment' } },
+  WinBarLspStatus = { link = 'Comment' },
 }
 
 function M.render()
@@ -41,11 +41,13 @@ function M.render()
     end
     local result = M.opts.format(table.concat(names, M.opts.separator))
 
-    return '%#' .. M.highlights.lsp_status.group .. '#' .. result .. '%*'
+    return '%#' .. 'WinBarLspStatus' .. '#' .. result .. '%*'
   end)
 end
 
 function M.autocmd()
+  -- FIX: Add `LspAttach` event.
+  -- For now, is in the `lsp_diagnostics` component.
   vim.api.nvim_create_autocmd('LspDetach', {
     group = cache().augroup,
     callback = function(args)

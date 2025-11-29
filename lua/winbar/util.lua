@@ -161,7 +161,9 @@ function M.prettify_store(cache)
     else
       -- iterate through each key in the domain
       for key, entry in pairs(domain_data) do
-        table.insert(lines, string.format('  Key: %s', key))
+        local bufnr = tonumber(key) or 0
+        local fullpath = vim.api.nvim_buf_get_name(bufnr)
+        table.insert(lines, string.format('  Key: [%s] %s', key, fullpath))
 
         if type(entry) == 'table' then
           -- pretty print the entry fields

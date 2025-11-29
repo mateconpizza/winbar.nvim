@@ -26,9 +26,9 @@ end
 M.opts = {}
 
 ---@class winbar.userHighlights
----@field git_branch winbar.highlight? git branch highlight
+---@field WinBarGitBranch winbar.HighlightAttrs? git branch highlight
 M.highlights = {
-  git_branch = { group = 'WinBarGitBranch', default = { link = 'Comment' } },
+  WinBarGitBranch = { link = 'Comment' },
 }
 
 function M.render()
@@ -42,13 +42,13 @@ function M.render()
   return cache().ensure(M.name, bufnr, function()
     -- check for external plugin
     local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-    if branch ~= nil then return highlight().string(M.highlights.git_branch.group, icon .. ' ' .. branch) end
+    if branch ~= nil then return highlight().string('WinBarGitBranch', icon .. ' ' .. branch) end
 
     -- fallback
     branch = utils().git_branch()
     if not branch then return '' end
 
-    return highlight().string(M.highlights.git_branch.group, icon .. ' ' .. branch)
+    return highlight().string('WinBarGitBranch', icon .. ' ' .. branch)
   end)
 end
 

@@ -8,6 +8,16 @@ local function utils()
   return require('winbar.util')
 end
 
+local function highlighter()
+  return require('winbar.highlight')
+end
+
+local hl = {
+  added = 'WinBarGitDiffAdded',
+  changed = 'WinBarGitDiffChanged',
+  removed = 'WinBarGitDiffRemoved',
+}
+
 -- parse a git diff stat string
 ---@param diffstat string
 ---@return table<string, integer>
@@ -30,30 +40,15 @@ local function parse_diffstat(diffstat)
 end
 
 ---@param c winbar.gitdiff
----@param highlights winbar.userHighlights
 ---@param diffstat string
-local function format_gitdiff_output(c, highlights, diffstat)
+local function format_gitdiff_output(c, diffstat)
   local hunks = parse_diffstat(diffstat)
+  local h = highlighter().string
   local parts = {}
 
-  if hunks.added > 0 then
-    table.insert(
-      parts,
-      '%#' .. highlights.diffadded.group .. '#' .. string.format('%s%d', c.added, hunks.added) .. '%*'
-    )
-  end
-  if hunks.changed > 0 then
-    table.insert(
-      parts,
-      '%#' .. highlights.diffchanged.group .. '#' .. string.format('%s%d', c.changed, hunks.changed) .. '%*'
-    )
-  end
-  if hunks.removed > 0 then
-    table.insert(
-      parts,
-      '%#' .. highlights.diffremoved.group .. '#' .. string.format('%s%d', c.removed, hunks.removed) .. '%*'
-    )
-  end
+  if hunks.added > 0 then table.insert(parts, h(hl.added, string.format('%s%d', c.added, hunks.added))) end
+  if hunks.changed > 0 then table.insert(parts, h(hl.changed, string.format('%s%d', c.changed, hunks.changed))) end
+  if hunks.removed > 0 then table.insert(parts, h(hl.removed, string.format('%s%d', c.removed, hunks.removed))) end
 
   return table.concat(parts, ' ')
 end
@@ -73,13 +68,13 @@ M.opts = {}
 
 -- stylua: ignore
 ---@class winbar.userHighlights
----@field diffadded winbar.highlight? git diff added lines highlight
----@field diffchanged winbar.highlight? git diff changed lines highlight
----@field diffremoved winbar.highlight? git diff removed lines highlight
+---@field WinBarGitDiffAdded winbar.HighlightAttrs?   git diff added lines highlight
+---@field WinBarGitDiffChanged winbar.HighlightAttrs? git diff changed lines highlight
+---@field WinBarGitDiffRemoved winbar.HighlightAttrs? git diff removed lines highlight
 M.highlights = {
-  diffadded   = { group = 'WinBarGitDiffAdded',   default = { link = 'Comment' } },
-  diffchanged = { group = 'WinBarGitDiffChanged', default = { link = 'Comment' } },
-  diffremoved = { group = 'WinBarGitDiffRemoved', default = { link = 'Comment' } },
+  WinBarGitDiffAdded   = { link = 'Comment' },
+  WinBarGitDiffChanged = { link = 'Comment' },
+  WinBarGitDiffRemoved = { link = 'Comment' },
 }
 
 function M.render()
@@ -90,7 +85,7 @@ function M.render()
     local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
     if diffstat == nil then return '' end
 
-    return format_gitdiff_output(M.opts, M.highlights, diffstat)
+    return format_gitdiff_output(M.opts, diffstat)
   end, M.interval_ms)
 end
 
