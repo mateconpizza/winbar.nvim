@@ -69,7 +69,7 @@ M.commands = {
 ---@field lsp winbar.lspClients? LSP client name display..
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
----@field exclusions table<string, string[]>?
+---@field exclusions winbar.exclusions?
 ---@field git winbar.git?
 ---@field layout winbar.layout?
 ---@field highlights winbar.userHighlights? winbar highlights.

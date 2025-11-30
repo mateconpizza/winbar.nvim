@@ -157,7 +157,7 @@ require('winbar').setup({
   -- Layout of the WinBar
   layout = {
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
-    center = {}, -- Components aligned to the center
+    center = {}, -- Components at the center
     right = { -- Components aligned to the right
       'lsp_status',
       'lsp_diagnostics',
@@ -168,7 +168,19 @@ require('winbar').setup({
     },
   },
   -- Highlight groups
-  highlights = {},
+  highlights = {
+    WinBarModified = { link = 'WarningMsg' },
+    WinBarReadonly = { link = 'ErrorMsg' },
+    WinBarGitBranch = { link = 'Comment' },
+    WinBarGitDiffAdded = { link = 'Comment' },
+    WinBarGitDiffChanged = { link = 'Comment' },
+    WinBarGitDiffRemoved = { link = 'Comment' },
+    WinBarLspStatus = { link = 'Comment' },
+    WinBarDiagnosticError = { link = 'DiagnosticError' },
+    WinBarDiagnosticWarn = { link = 'DiagnosticWarn' },
+    WinBarDiagnosticInfo = { link = 'DiagnosticInfo' },
+    WinBarDiagnosticHint = { link = 'DiagnosticHint' },
+  },
 })
 ```
 
