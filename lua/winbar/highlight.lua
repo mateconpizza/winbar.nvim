@@ -29,7 +29,7 @@ function M.string(highlight_group, text)
   return '%#' .. highlight_group .. '#' .. text .. '%*'
 end
 
----@param user_hl winbar.HighlightAttrs
+---@param user_hl winbar.HighlightAttrs[]
 function M.setup(user_hl)
   user_hl = user_hl or {}
 

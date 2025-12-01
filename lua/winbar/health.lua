@@ -20,6 +20,7 @@ function M.log_warning(key)
 end
 
 function M.show_highlights()
+  -- FIX: update
   local hl = require('winbar.highlight').highlights
   local missing = {}
 

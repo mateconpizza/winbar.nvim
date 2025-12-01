@@ -31,7 +31,7 @@ function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
 
   local bufnr = vim.api.nvim_get_current_buf()
-  if not cache().lsp_attached[bufnr] then return '' end
+  if #vim.lsp.get_clients({ bufnr = bufnr }) == 0 then return '' end
 
   return cache().ensure(M.name, bufnr, function()
     local clients = vim.lsp.get_clients({ bufnr = bufnr })
@@ -46,13 +46,21 @@ function M.render()
 end
 
 function M.autocmd()
-  -- FIX: Add `LspAttach` event.
-  -- For now, is in the `lsp_diagnostics` component.
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = cache().augroup,
+    callback = function(args)
+      local bufnr = args.buf
+      if not utils().is_normal_buffer(bufnr) or not utils().is_visible_in_normal_win(bufnr) then return end
+      cache().invalidate(M.name, bufnr)
+      utils().throttled_redraw(M.interval_ms or 100)
+    end,
+    desc = 'update LSP clients list when LSP attaches',
+  })
+
   vim.api.nvim_create_autocmd('LspDetach', {
     group = cache().augroup,
     callback = function(args)
       local bufnr = args.buf
-      cache().lsp_attached[bufnr] = nil
       cache().invalidate(M.name, bufnr)
     end,
     desc = 'clear cache when LSP client detaches from buffer',
