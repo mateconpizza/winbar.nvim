@@ -15,7 +15,7 @@ local M = {}
 M.name = 'lsp_status'
 M.side = 'right'
 function M.enabled()
-  return true
+  return M.opts.enabled
 end
 
 ---@type winbar.lspClients
