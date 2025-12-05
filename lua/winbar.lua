@@ -51,7 +51,7 @@ local function safe_render(comp)
   return content or ''
 end
 
-local config = defaults().config
+local config = {}
 
 ---@class winbar
 local M = {}
@@ -63,11 +63,10 @@ function M.disable()
 end
 
 -- user command for toggling winbar
----@param c winbar.config
-function M.cmd_toggle(c)
+function M.cmd_toggle()
   vim.api.nvim_create_user_command(defaults().commands.toggle, function()
-    c.enabled = not c.enabled
-    if not c.enabled then
+    config.enabled = not config.enabled
+    if not config.enabled then
       -- clear winbar in all windows
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         vim.wo[win].winbar = ''
@@ -80,30 +79,27 @@ function M.cmd_toggle(c)
     -- re-enable winbar in all windows
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       vim.api.nvim_win_call(win, function()
-        if not utils().is_special_buffer(c.exclusions.buftypes, c.exclusions.filetypes) then
+        if not utils().is_special_buffer(config.exclusions.buftypes, config.exclusions.filetypes) then
           vim.wo[win].winbar = '%{%v:lua._winbar_render()%}'
         end
       end)
     end
-    cmp().setup(c)
+    cmp().setup(config)
   end, {})
 end
 
 -- user command for debugging
----@param enabled boolean
-function M.cmd_debug(enabled)
-  if not enabled then return end
+function M.cmd_debug()
   vim.api.nvim_create_user_command(defaults().commands.inspect, function()
     cache().inspect()
   end, {})
 end
 
 -- set up autocmd to conditionally show/hide winbar based on buffer type
----@param c winbar.config
-function M.autocmd(c)
+function M.autocmd()
   vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufEnter', 'TermOpen', 'TermEnter', 'FileType' }, {
     callback = function()
-      if utils().is_special_buffer(c.exclusions.buftypes, c.exclusions.filetypes) then
+      if utils().is_special_buffer(config.exclusions.buftypes, config.exclusions.filetypes) then
         vim.wo.winbar = ''
         return
       end
@@ -171,7 +167,7 @@ end
 ---@param opts? winbar.config
 function M.setup(opts)
   local exclusions = defaults().parse_exclusions(opts and opts.exclusions)
-  config = vim.tbl_deep_extend('force', config, opts or {})
+  config = vim.tbl_deep_extend('force', defaults().config, opts or {})
   config.exclusions = exclusions
 
   health().validate(config)
@@ -193,11 +189,11 @@ function M.setup(opts)
   _G._winbar_render = M.render
 
   -- autocmd
-  M.autocmd(config)
+  M.autocmd()
 
   -- user commands
-  M.cmd_toggle(config)
-  M.cmd_debug(config.dev_mode)
+  M.cmd_toggle()
+  if config.dev_mode then M.cmd_debug() end
 end
 
 return M
