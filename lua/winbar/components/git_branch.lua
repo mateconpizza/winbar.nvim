@@ -12,6 +12,11 @@ local function highlight()
   return require('winbar.highlight')
 end
 
+local function with_icon(icon, text)
+  if icon == nil or icon == '' then return text end
+  return icon .. ' ' .. text
+end
+
 ---@class winbar.components.gitbranch: winbar.component
 local M = {}
 
@@ -48,7 +53,7 @@ function M.render()
     branch = utils().git_branch()
     if not branch then return '' end
 
-    return highlight().string('WinBarGitBranch', icon .. ' ' .. branch)
+    return highlight().string('WinBarGitBranch', with_icon(icon, branch))
   end)
 end
 
