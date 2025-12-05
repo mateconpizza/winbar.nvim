@@ -48,20 +48,7 @@ end
 ---@param filetypes table<string>
 ---@return boolean
 function M.is_special_buffer(buftypes, filetypes)
-  local buftype = vim.bo.buftype
-  local filetype = vim.bo.filetype
-
-  -- skip special buffer types
-  for _, bt in ipairs(buftypes) do
-    if buftype == bt then return true end
-  end
-
-  -- skip special filetypes
-  for _, ft in ipairs(filetypes) do
-    if filetype == ft then return true end
-  end
-
-  return false
+  return vim.tbl_contains(buftypes, vim.bo.buftype) or vim.tbl_contains(filetypes, vim.bo.filetype)
 end
 
 -- redraws the statusline/winbar with a throttle interval.

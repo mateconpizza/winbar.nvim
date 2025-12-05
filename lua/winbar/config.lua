@@ -91,12 +91,18 @@ M.config = {
     filetypes = {
       -- Filetypes where WinBar will not be shown
       'aerial',
+      'checkhealth',
       'dap-float',
       'fugitive',
-      'oil',
-      'Trouble',
+      'gitcommit',
+      'gitrebase',
+      'help',
       'lazy',
+      'lspinfo',
       'man',
+      'oil',
+      'qf',
+      'trouble',
     },
     -- Buffer types where WinBar will not be shown
     buftypes = {
@@ -104,7 +110,10 @@ M.config = {
       'netrw',
       'nofile',
       'nowrite',
+      'popup',
+      'prompt',
       'quickfix',
+      'scratch',
       'terminal',
     },
   },
@@ -167,5 +176,14 @@ M.config = {
   -- Dev mode
   dev_mode = false,
 }
+
+---@return winbar.exclusions
+function M.parse_exclusions(exclusions)
+  exclusions = exclusions or {}
+  local filetypes = vim.tbl_deep_extend('force', M.config.exclusions.filetypes, exclusions.filetypes or {})
+  local buftypes = vim.tbl_deep_extend('force', M.config.exclusions.buftypes, exclusions.buftypes or {})
+
+  return { filetypes = filetypes, buftypes = buftypes }
+end
 
 return M
