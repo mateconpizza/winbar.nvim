@@ -60,6 +60,7 @@ M.commands = {
 ---@field icon boolean? -- show file icon (e.g., via nvim-web-devicons)
 ---@field format? fun(clients: string): string custom formatter for the filename.
 ---@field min_width? integer minimum window width required to display this component.
+---@field max_segments? integer show the last n folders when two files share the same name.
 
 ---@class (exact) winbar.config
 ---@field enabled boolean?
@@ -85,6 +86,7 @@ M.config = {
       return filename
     end,
     min_width = 20,
+    max_segments = 3, -- Show the last n folders/segments when two files share the same name.
   },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {

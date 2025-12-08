@@ -1,4 +1,4 @@
-*winbar.nvim.txt*          For NVIM v0.11.5         Last change: 2025 November
+*winbar.nvim.txt*          For NVIM v0.11.5         Last change: 2025 December
 
 ==============================================================================
 Table of Contents                              *winbar.nvim-table-of-contents*
@@ -90,6 +90,7 @@ Default configuration ~
           return filename
         end,
         min_width = 20,
+        max_segments = 3, -- show the last n folders/segments when two files share the same name.
       },
       show_single_buffer = true, -- Show WinBar even with a single visible buffer
       exclusions = {

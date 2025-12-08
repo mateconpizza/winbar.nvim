@@ -90,6 +90,7 @@ require('winbar').setup({
       return filename
     end,
     min_width = 20,
+    max_segments = 3, -- show the last n folders/segments when two files share the same name.
   },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {

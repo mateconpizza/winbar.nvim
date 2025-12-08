@@ -8,12 +8,19 @@ local M = {}
 
 -- get the relative path of a buffer name, falling back to filename only for home directory paths.
 ---@param bufname string
+---@param max_segments integer
 ---@return string
-function M.get_relative_path(bufname)
-  local relative_path = vim.fn.fnamemodify(bufname, ':~:.')
-  if relative_path:sub(1, 1) == '~' then relative_path = vim.fn.fnamemodify(bufname, ':t') end
+function M.get_relative_path(bufname, max_segments)
+  local relative = vim.fn.fnamemodify(bufname, ':~:.')
 
-  return relative_path
+  -- if inside home (~) → show "~/filename"
+  if relative:sub(1, 1) == '~' then return '~/' .. vim.fn.fnamemodify(bufname, ':t') end
+
+  -- limit to last n segments
+  local parts = vim.split(relative, '/', { trimempty = true })
+  if #parts > max_segments then parts = vim.list_slice(parts, #parts - max_segments + 1, #parts) end
+
+  return table.concat(parts, '/')
 end
 
 -- skip special or unlisted buffers

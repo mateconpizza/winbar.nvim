@@ -45,7 +45,7 @@ function M.render()
     end
 
     -- add relative path if duplicate
-    if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname) end
+    if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname, M.opts.max_segments) end
 
     -- add icon
     if M.opts.icon then filename = cmp_icon().render() .. ' ' .. filename end
