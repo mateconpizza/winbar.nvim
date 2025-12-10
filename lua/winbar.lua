@@ -34,6 +34,8 @@ end
 
 local shown_errors = {}
 
+local main_augroup = utils().augroup('main')
+
 ---@param comp winbar.component
 local function safe_render(comp)
   local ok, content = pcall(comp.render)
@@ -57,12 +59,20 @@ local M = {}
 
 -- clear all autocmds in the augroup
 function M.disable()
-  -- clear all autocmds from the shared cache augroup
+  -- clear main autocmd
+  vim.api.nvim_clear_autocmds({ group = main_augroup })
+
+  -- clear cache autocmd
   vim.api.nvim_clear_autocmds({ group = cache().augroup })
 
   -- clear all component's autocmds
   for _, augroup in pairs(cmp().augroups) do
     vim.api.nvim_clear_autocmds({ group = augroup })
+  end
+
+  -- call component `disable` func
+  for _, c in pairs(cmp().registry) do
+    if c and c.disable then c.disable() end
   end
 
   -- reset cache
@@ -95,6 +105,9 @@ function M.cmd_toggle()
       end)
     end
 
+    -- main autocmd
+    M.autocmd()
+
     -- setup all components
     cmp().setup(config)
 
@@ -113,6 +126,7 @@ end
 -- set up autocmd to conditionally show/hide winbar based on buffer type
 function M.autocmd()
   vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufEnter', 'TermOpen', 'TermEnter', 'FileType' }, {
+    group = main_augroup,
     callback = function()
       if utils().is_special_buffer(config.exclusions.buftypes, config.exclusions.filetypes) then
         vim.wo.winbar = ''
@@ -203,11 +217,12 @@ function M.setup(opts)
   -- global function
   _G._winbar_render = M.render
 
-  -- autocmd
+  -- main autocmd
   M.autocmd()
 
   -- user commands
   M.cmd_toggle()
+
   if config.dev_mode then M.cmd_debug() end
 end
 

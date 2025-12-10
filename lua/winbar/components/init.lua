@@ -33,6 +33,7 @@ setmetatable(M, {
 ---@field name string                               -- unique identifier
 ---@field side 'left'|'center'|'right'              -- position in winbar
 ---@field enabled fun(): boolean                    -- check if it should render
+---@field disable? fun()                            -- run when winbar is disable
 ---@field render fun(): string|nil                  -- return content or nil to hide
 ---@field opts? table|boolean|string                -- component options
 ---@field interval_ms? integer                      -- redraw throttle interval
@@ -47,7 +48,7 @@ M.registry = {}
 -- component's autocmd groups
 M.augroups = {}
 
-function M.cleanup()
+function M.cleanup_autocmd()
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
     group = cache().augroup,
     callback = function(args)
@@ -125,7 +126,7 @@ function M.setup(c)
   end
 
   -- setup cleanup autocmd
-  M.cleanup()
+  M.cleanup_autocmd()
 end
 
 return M
