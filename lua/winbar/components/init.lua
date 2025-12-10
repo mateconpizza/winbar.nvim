@@ -18,6 +18,7 @@ end
 ---@field gitbranch winbar.components.gitbranch
 ---@field gitdiff winbar.components.gitdiff
 ---@field lsp_clients winbar.components.lsp_clients
+---@field lsp_progress winbar.components.lsp_progress
 ---@field lsp_diagnostics winbar.components.lsp_diagnostics
 local M = {}
 
@@ -90,6 +91,7 @@ function M.setup(c)
     { 'git_diff',         c.git.diff, c.update_interval },
     { 'lsp_clients',      c.lsp },
     { 'lsp_diagnostics',  c.diagnostics, c.update_interval },
+    { 'lsp_progress',     c.lsp_progress },
   }
 
   for _, item in ipairs(builtin_components) do

@@ -26,6 +26,12 @@ M.commands = {
 ---@field format? fun(clients: string): string custom formatter for client names.
 ---@field min_width? integer minimum window width required to display this component.
 
+---@class winbar.lspProgress
+---@field enabled boolean? enable LSP progress display.
+---@field spinner string[]? Array of frames.
+---@field spinner_interval number? ms between frames.
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.icons
 ---@field modified string? icon for modified buffers.
 ---@field readonly string? icon for readonly buffers.
@@ -67,7 +73,8 @@ M.commands = {
 ---@field update_interval integer? interval in milliseconds
 ---@field filename winbar.filename
 ---@field diagnostics winbar.diagnostics? diagnostics.
----@field lsp winbar.lspClients? LSP client name display..
+---@field lsp winbar.lspClients? LSP client name display.
+---@field lsp_progress winbar.lspProgress? LSP progress spinner.
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
 ---@field exclusions winbar.exclusions?
@@ -145,6 +152,13 @@ M.config = {
     end,
     min_width = 50,
   },
+  -- LSP loading progress display
+  lsp_progress = {
+    enabled = true,
+    spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+    spinner_interval = 120,
+    min_width = 50,
+  },
   -- Git display
   git = {
     branch = {
@@ -165,6 +179,7 @@ M.config = {
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
     center = {}, -- Components aligned to the center
     right = { -- Components aligned to the right
+      'lsp_progress',
       'lsp_status',
       'lsp_diagnostics',
       'modified',

@@ -27,6 +27,10 @@ M.augroup = augroup_cache
 
 -- store whether lsp is attached per buffer
 ---@type table<integer, boolean>
+M.lsp_attached = {}
+
+-- store whether lsp is attached per buffer
+---@type table<integer, boolean>
 -- M.lsp_attached = {}
 
 ---@class CacheEntry
