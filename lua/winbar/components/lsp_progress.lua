@@ -127,11 +127,9 @@ function M.render()
   return (buf_msg or '') .. format_spinner()
 end
 
-function M.autocmd()
-  local group = cache().augroup
-
+function M.autocmd(augroup)
   vim.api.nvim_create_autocmd('User', {
-    group = group,
+    group = augroup,
     pattern = progress_patterns.update,
     callback = function()
       utils().throttled_redraw(100)
@@ -139,7 +137,7 @@ function M.autocmd()
   })
 
   vim.api.nvim_create_autocmd('User', {
-    group = group,
+    group = augroup,
     pattern = progress_patterns.done,
     callback = function()
       vim.cmd('redrawstatus!')
@@ -147,7 +145,7 @@ function M.autocmd()
   })
 
   vim.api.nvim_create_autocmd({ 'LspAttach', 'LspDetach' }, {
-    group = group,
+    group = augroup,
     callback = function(args)
       cache().invalidate(M.name, args.buf)
       message[args.buf] = nil

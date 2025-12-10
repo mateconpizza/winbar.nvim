@@ -31,18 +31,21 @@ setmetatable(M, {
 
 ---@class winbar.component
 ---@field name string                               -- unique identifier
----@field side 'left'|'center'|'right'             -- position in winbar
+---@field side 'left'|'center'|'right'              -- position in winbar
 ---@field enabled fun(): boolean                    -- check if it should render
 ---@field render fun(): string|nil                  -- return content or nil to hide
 ---@field opts? table|boolean|string                -- component options
 ---@field interval_ms? integer                      -- redraw throttle interval
----@field autocmd? fun()                            -- define autocmds
+---@field autocmd? fun(augroup: integer)            -- define autocmds
 ---@field highlights? winbar.HighlightAttrs[]       -- component highlights groups
 ---@field setup? fun(opts?: table|boolean|string, interval_ms?: integer|string): winbar.component
 
 -- component registry
 ---@type table<string, winbar.component>
 M.registry = {}
+
+-- component's autocmd groups
+M.augroups = {}
 
 function M.cleanup()
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
@@ -60,7 +63,12 @@ end
 function M.add_component(c)
   -- WIP:
   -- if c and c.setup then M.register(c.setup(cfg, _interval)) end
-  if c and c.autocmd then c.autocmd() end
+  if c and c.autocmd then
+    local augroup = utils().augroup(c.name)
+    table.insert(M.augroups, augroup)
+    c.autocmd(augroup)
+  end
+
   if c and c.highlights then highlight().merge(c.highlights) end
   M.register(c)
 end
@@ -99,9 +107,21 @@ function M.setup(c)
 
     ---@type winbar.component
     local module = M[name]
+
+    -- setup opts
     if module and module.setup then M.register(module.setup(cfg, _interval)) end
-    if module and module.autocmd then module.autocmd() end
-    if module and module.highlights then highlight().merge(module.highlights) end
+
+    if module.enabled() or module.name == 'modified' then
+      -- autocommands
+      if module and module.autocmd then
+        local augroup = utils().augroup(module.name)
+        table.insert(M.augroups, augroup)
+        module.autocmd(augroup)
+      end
+
+      -- setup highlights
+      if module and module.highlights then highlight().merge(module.highlights) end
+    end
   end
 
   -- setup cleanup autocmd

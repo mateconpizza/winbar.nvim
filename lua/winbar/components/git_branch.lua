@@ -57,9 +57,9 @@ function M.render()
   end)
 end
 
-function M.autocmd()
+function M.autocmd(augroup)
   vim.api.nvim_create_autocmd({ 'DirChanged', 'BufEnter' }, {
-    group = cache().augroup,
+    group = augroup,
     callback = function(args)
       local bufnr = args.buf
 

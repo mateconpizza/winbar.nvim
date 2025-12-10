@@ -45,12 +45,13 @@ function M.render()
   end)
 end
 
-function M.autocmd()
+function M.autocmd(augroup)
   vim.api.nvim_create_autocmd('LspAttach', {
-    group = cache().augroup,
+    group = augroup,
     callback = function(args)
       local bufnr = args.buf
       if not utils().is_normal_buffer(bufnr) or not utils().is_visible_in_normal_win(bufnr) then return end
+      cache().lsp_attached[bufnr] = true
       cache().invalidate(M.name, bufnr)
       utils().throttled_redraw(M.interval_ms or 100)
     end,
@@ -58,9 +59,10 @@ function M.autocmd()
   })
 
   vim.api.nvim_create_autocmd('LspDetach', {
-    group = cache().augroup,
+    group = augroup,
     callback = function(args)
       local bufnr = args.buf
+      cache().lsp_attached[bufnr] = nil
       cache().invalidate(M.name, bufnr)
     end,
     desc = 'clear cache when LSP client detaches from buffer',

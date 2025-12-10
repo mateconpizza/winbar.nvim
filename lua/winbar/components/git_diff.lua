@@ -89,9 +89,9 @@ function M.render()
   end, M.interval_ms)
 end
 
-function M.autocmd()
+function M.autocmd(augroup)
   vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
-    group = cache().augroup,
+    group = augroup,
     callback = function(args)
       local bufnr = args.buf
 

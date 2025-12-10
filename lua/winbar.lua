@@ -45,7 +45,6 @@ local function safe_render(comp)
     end
 
     return highlight().string('ErrorMsg', comp.name)
-    -- return ''
   end
 
   return content or ''
@@ -58,7 +57,15 @@ local M = {}
 
 -- clear all autocmds in the augroup
 function M.disable()
+  -- clear all autocmds from the shared cache augroup
   vim.api.nvim_clear_autocmds({ group = cache().augroup })
+
+  -- clear all component's autocmds
+  for _, augroup in pairs(cmp().augroups) do
+    vim.api.nvim_clear_autocmds({ group = augroup })
+  end
+
+  -- reset cache
   cache().reset()
 end
 
@@ -84,6 +91,8 @@ function M.cmd_toggle()
         end
       end)
     end
+
+    -- setup all components
     cmp().setup(config)
   end, {})
 end
