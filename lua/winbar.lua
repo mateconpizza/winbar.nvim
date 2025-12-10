@@ -67,6 +67,9 @@ function M.disable()
 
   -- reset cache
   cache().reset()
+
+  -- clear highlights
+  highlight().clear()
 end
 
 -- user command for toggling winbar
@@ -94,6 +97,9 @@ function M.cmd_toggle()
 
     -- setup all components
     cmp().setup(config)
+
+    -- apply highlights
+    highlight().setup(config.highlights)
   end, {})
 end
 

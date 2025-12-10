@@ -29,6 +29,13 @@ function M.string(highlight_group, text)
   return '%#' .. highlight_group .. '#' .. text .. '%*'
 end
 
+-- clear highlights group applied
+function M.clear()
+  for group, _ in pairs(M.highlights) do
+    vim.cmd('hi clear ' .. group)
+  end
+end
+
 ---@param user_hl winbar.HighlightAttrs[]
 function M.setup(user_hl)
   user_hl = user_hl or {}
