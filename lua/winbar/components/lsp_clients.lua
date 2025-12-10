@@ -9,6 +9,14 @@ local function utils()
   return require('winbar.util')
 end
 
+local function highlighter()
+  return require('winbar.highlight')
+end
+
+local hl_groups = {
+  status = 'WinBarLspStatus',
+}
+
 ---@class winbar.components.lsp_clients: winbar.component
 local M = {}
 
@@ -24,7 +32,7 @@ M.opts = {}
 ---@class winbar.userHighlights
 ---@field WinBarLspStatus winbar.HighlightAttrs? LSP client name highlights.
 M.highlights = {
-  WinBarLspStatus = { link = 'Comment' },
+  [hl_groups.status] = { link = 'Comment' },
 }
 
 function M.render()
@@ -41,7 +49,7 @@ function M.render()
     end
     local result = M.opts.format(table.concat(names, M.opts.separator))
 
-    return '%#' .. 'WinBarLspStatus' .. '#' .. result .. '%*'
+    return highlighter().string(hl_groups.status, result)
   end)
 end
 

@@ -12,7 +12,7 @@ local function highlighter()
   return require('winbar.highlight')
 end
 
-local hl = {
+local hl_groups = {
   added = 'WinBarGitDiffAdded',
   changed = 'WinBarGitDiffChanged',
   removed = 'WinBarGitDiffRemoved',
@@ -46,9 +46,13 @@ local function format_gitdiff_output(c, diffstat)
   local h = highlighter().string
   local parts = {}
 
-  if hunks.added > 0 then table.insert(parts, h(hl.added, string.format('%s%d', c.added, hunks.added))) end
-  if hunks.changed > 0 then table.insert(parts, h(hl.changed, string.format('%s%d', c.changed, hunks.changed))) end
-  if hunks.removed > 0 then table.insert(parts, h(hl.removed, string.format('%s%d', c.removed, hunks.removed))) end
+  if hunks.added > 0 then table.insert(parts, h(hl_groups.added, string.format('%s%d', c.added, hunks.added))) end
+  if hunks.changed > 0 then
+    table.insert(parts, h(hl_groups.changed, string.format('%s%d', c.changed, hunks.changed)))
+  end
+  if hunks.removed > 0 then
+    table.insert(parts, h(hl_groups.removed, string.format('%s%d', c.removed, hunks.removed)))
+  end
 
   return table.concat(parts, ' ')
 end
@@ -72,9 +76,9 @@ M.opts = {}
 ---@field WinBarGitDiffChanged winbar.HighlightAttrs? git diff changed lines highlight
 ---@field WinBarGitDiffRemoved winbar.HighlightAttrs? git diff removed lines highlight
 M.highlights = {
-  WinBarGitDiffAdded   = { link = 'Comment' },
-  WinBarGitDiffChanged = { link = 'Comment' },
-  WinBarGitDiffRemoved = { link = 'Comment' },
+  [hl_groups.added]   = { link = 'Comment' },
+  [hl_groups.changed] = { link = 'Comment' },
+  [hl_groups.removed] = { link = 'Comment' },
 }
 
 function M.render()

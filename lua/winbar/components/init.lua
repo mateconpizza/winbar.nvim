@@ -98,8 +98,8 @@ function M.setup(c)
     { 'filename',         c.filename },
     { 'git_branch',       c.git.branch, c.update_interval },
     { 'git_diff',         c.git.diff, c.update_interval },
-    { 'lsp_clients',      c.lsp },
-    { 'lsp_diagnostics',  c.diagnostics, c.update_interval },
+    { 'lsp_clients',      c.lsp_clients },
+    { 'lsp_diagnostics',  c.lsp_diagnostics, c.update_interval },
     { 'lsp_progress',     c.lsp_progress },
   }
 

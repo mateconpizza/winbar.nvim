@@ -72,8 +72,8 @@ M.commands = {
 ---@field enabled boolean?
 ---@field update_interval integer? interval in milliseconds
 ---@field filename winbar.filename
----@field diagnostics winbar.diagnostics? diagnostics.
----@field lsp winbar.lspClients? LSP client name display.
+---@field lsp_clients winbar.lspClients? LSP client name display.
+---@field lsp_diagnostics winbar.diagnostics? diagnostics.
 ---@field lsp_progress winbar.lspProgress? LSP progress spinner.
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
@@ -131,8 +131,17 @@ M.config = {
     modified = '[+]', -- Shown for unsaved buffers (choice: ●)
     readonly = '[RO]', -- Shown for readonly buffers (choice: )
   },
+  -- LSP client name display
+  lsp_clients = {
+    enabled = true, -- Enable LSP client display
+    separator = ',', -- Separator for multiple clients
+    format = function(clients) -- Formatter for LSP client names
+      return clients
+    end,
+    min_width = 50,
+  },
   -- Diagnostics configuration
-  diagnostics = {
+  lsp_diagnostics = {
     enabled = true, -- Show diagnostics
     style = 'standard', -- Display style (`standard` or `mini`)
     icons = { -- Diagnostic severity icons
@@ -142,15 +151,6 @@ M.config = {
       warn = 'w:',
     },
     min_width = 55,
-  },
-  -- LSP client name display
-  lsp = {
-    enabled = true, -- Enable LSP client display
-    separator = ',', -- Separator for multiple clients
-    format = function(clients) -- Formatter for LSP client names
-      return clients
-    end,
-    min_width = 50,
   },
   -- LSP loading progress display
   lsp_progress = {

@@ -4,6 +4,10 @@ local function highlight()
   return require('winbar.highlight')
 end
 
+local hl_groups = {
+  modified = 'WinBarModified',
+}
+
 ---@class winbar.components.modified: winbar.component
 local M = {}
 
@@ -17,11 +21,11 @@ end
 ---@class winbar.userHighlights[]
 ---@field WinBarModified winbar.HighlightAttrs? modified highlight
 M.highlights = {
-  WinBarModified = { link = 'WarningMsg' },
+  [hl_groups.modified] = { link = 'WarningMsg' },
 }
 
 function M.render()
-  return highlight().string('WinBarModified', M.icon)
+  return highlight().string(hl_groups.modified, M.icon)
 end
 
 ---@param icon string

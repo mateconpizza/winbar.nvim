@@ -76,10 +76,10 @@ end
 ---@field WinBarDiagnosticInfo winbar.HighlightAttrs?  diagnostic info highlight
 ---@field WinBarDiagnosticHint winbar.HighlightAttrs?  diagnostic hint highlight
 M.highlights = {
-  WinBarDiagnosticError  = { link = 'DiagnosticError' },
-  WinBarDiagnosticWarn   = { link = 'DiagnosticWarn'  },
-  WinBarDiagnosticInfo   = { link = 'DiagnosticInfo'  },
-  WinBarDiagnosticHint   = { link = 'DiagnosticHint'  },
+  [hl_groups.error]  = { link = 'DiagnosticError' },
+  [hl_groups.warn]   = { link = 'DiagnosticWarn'  },
+  [hl_groups.info]   = { link = 'DiagnosticInfo'  },
+  [hl_groups.hint]   = { link = 'DiagnosticHint'  },
 }
 
 ---@type winbar.diagnostics

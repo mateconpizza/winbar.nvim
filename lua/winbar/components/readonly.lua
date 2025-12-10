@@ -4,6 +4,10 @@ local function highlight()
   return require('winbar.highlight')
 end
 
+local hl_groups = {
+  readonly = 'WinBarReadonly',
+}
+
 ---@class winbar.components.readonly: winbar.component
 local M = {}
 
@@ -17,11 +21,11 @@ end
 ---@class winbar.userHighlights
 ---@field WinBarReadonly winbar.HighlightAttrs? readonly highlight
 M.highlights = {
-  WinBarReadonly = { link = 'ErrorMsg' },
+  [hl_groups.readonly] = { link = 'ErrorMsg' },
 }
 
 function M.render()
-  return highlight().string('WinBarReadonly', M.icon)
+  return highlight().string(hl_groups.readonly, M.icon)
 end
 
 ---@param icon string

@@ -17,6 +17,10 @@ local function with_icon(icon, text)
   return icon .. ' ' .. text
 end
 
+local hl_groups = {
+  branch = 'WinBarGitBranch',
+}
+
 ---@class winbar.components.gitbranch: winbar.component
 local M = {}
 
@@ -33,7 +37,7 @@ M.opts = {}
 ---@class winbar.userHighlights
 ---@field WinBarGitBranch winbar.HighlightAttrs? git branch highlight
 M.highlights = {
-  WinBarGitBranch = { link = 'Comment' },
+  [hl_groups.branch] = { link = 'Comment' },
 }
 
 function M.render()
@@ -47,7 +51,7 @@ function M.render()
   return cache().ensure(M.name, bufnr, function()
     -- check for external plugin
     local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-    if branch ~= nil then return highlight().string('WinBarGitBranch', icon .. ' ' .. branch) end
+    if branch ~= nil then return highlight().string(hl_groups.branch, icon .. ' ' .. branch) end
 
     -- fallback
     branch = utils().git_branch()
