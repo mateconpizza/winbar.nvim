@@ -17,6 +17,12 @@ local hl_groups = {
   status = 'WinBarLspStatus',
 }
 
+---@class winbar.lsp.clients
+---@field enabled boolean? enable LSP client name display.
+---@field separator? string? separator between multiple LSP clients.
+---@field format? fun(clients: string): string custom formatter for client names.
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.components.lsp_clients: winbar.component
 local M = {}
 
@@ -26,7 +32,7 @@ function M.enabled()
   return M.opts.enabled
 end
 
----@type winbar.lspClients
+---@type winbar.lsp.clients
 M.opts = {}
 
 ---@class winbar.userHighlights
@@ -77,7 +83,7 @@ function M.autocmd(augroup)
   })
 end
 
----@param opts winbar.lspClients
+---@param opts winbar.lsp.clients
 ---@return winbar.component
 function M.setup(opts)
   M.opts = opts or {}

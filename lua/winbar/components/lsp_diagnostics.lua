@@ -21,7 +21,7 @@ local hl_groups = {
 
 -- formats diagnostic counts in standard mode
 ---@param counts table
----@param icons winbar.diagnosticIcons
+---@param icons winbar.lsp.diagnosticIcons
 ---@return string
 local function format_standard(counts, icons)
   if vim.o.columns < 60 then return '' end
@@ -59,6 +59,18 @@ local function get_diagnostic_counts(bufnr)
   }
 end
 
+---@class winbar.lsp.diagnosticIcons
+---@field error string? icon for errors.
+---@field hint string? icon for hints.
+---@field info string? icon for infos.
+---@field warn string? icon for warnings.
+
+---@class winbar.lsp.diagnostics
+---@field enabled boolean? enable diagnostics.
+---@field style 'mini' | 'standard'? diagnostics style (standard or mini).
+---@field icons winbar.lsp.diagnosticIcons?
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.components.lsp_diagnostics: winbar.component
 local M = {}
 
@@ -82,7 +94,7 @@ M.highlights = {
   [hl_groups.hint]   = { link = 'DiagnosticHint'  },
 }
 
----@type winbar.diagnostics
+---@type winbar.lsp.diagnostics
 M.opts = {}
 
 function M.render()
@@ -136,7 +148,7 @@ function M.autocmd(augroup)
   })
 end
 
----@param opts winbar.diagnostics
+---@param opts winbar.lsp.diagnostics
 ---@param interval_ms integer
 ---@return winbar.component
 function M.setup(opts, interval_ms)

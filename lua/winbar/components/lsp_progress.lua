@@ -65,6 +65,12 @@ local state = {
   },
 }
 
+---@class winbar.lsp.progress
+---@field enabled boolean? enable LSP progress display.
+---@field spinner string[]? Array of frames.
+---@field spinner_interval number? ms between frames.
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.components.lsp_progress: winbar.component
 local M = {}
 
@@ -75,7 +81,7 @@ function M.enabled()
   return M.opts and M.opts.enabled
 end
 
----@type winbar.lspProgress
+---@type winbar.lsp.progress
 M.opts = {}
 
 ---@class winbar.userHighlights

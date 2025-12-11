@@ -39,7 +39,7 @@ local function parse_diffstat(diffstat)
   return stats
 end
 
----@param c winbar.gitdiff
+---@param c winbar.git.diff
 ---@param diffstat string
 local function format_gitdiff_output(c, diffstat)
   local hunks = parse_diffstat(diffstat)
@@ -57,6 +57,13 @@ local function format_gitdiff_output(c, diffstat)
   return table.concat(parts, ' ')
 end
 
+---@class winbar.git.diff
+---@field enabled boolean?
+---@field added string? icon for added files in git diff
+---@field changed string? icon for changed files in git diff
+---@field removed string? icon for removed files in git diff
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.components.gitdiff: winbar.component
 local M = {}
 
@@ -67,7 +74,7 @@ function M.enabled()
   return M.opts.enabled
 end
 
----@type winbar.gitdiff
+---@type winbar.git.diff
 M.opts = {}
 
 -- stylua: ignore
@@ -109,7 +116,7 @@ function M.autocmd(augroup)
   })
 end
 
----@param opts winbar.gitdiff
+---@param opts winbar.git.diff
 ---@param interval_ms integer
 ---@return winbar.component
 function M.setup(opts, interval_ms)

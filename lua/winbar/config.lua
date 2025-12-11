@@ -8,29 +8,10 @@ M.commands = {
   toggle = 'WinBarToggle',
 }
 
----@class winbar.diagnosticIcons
----@field error string? icon for errors.
----@field hint string? icon for hints.
----@field info string? icon for infos.
----@field warn string? icon for warnings.
-
----@class winbar.diagnostics
----@field enabled boolean? enable diagnostics.
----@field style 'mini' | 'standard'? diagnostics style (standard or mini).
----@field icons winbar.diagnosticIcons?
----@field min_width? integer minimum window width required to display this component.
-
----@class winbar.lspClients
----@field enabled boolean? enable LSP client name display.
----@field separator? string? separator between multiple LSP clients.
----@field format? fun(clients: string): string custom formatter for client names.
----@field min_width? integer minimum window width required to display this component.
-
----@class winbar.lspProgress
----@field enabled boolean? enable LSP progress display.
----@field spinner string[]? Array of frames.
----@field spinner_interval number? ms between frames.
----@field min_width? integer minimum window width required to display this component.
+---@class winbar.lsp
+---@field clients winbar.lsp.clients? LSP client name display
+---@field diagnostics winbar.lsp.diagnostics? diagnostics display
+---@field progress winbar.lsp.progress? LSP progress spinner
 
 ---@class winbar.icons
 ---@field modified string? icon for modified buffers.
@@ -45,36 +26,15 @@ M.commands = {
 ---@field filetypes string[]? filetypes to exclude from WinBar display.
 ---@field buftypes string[]? buffer types to exclude from WinBar display.
 
----@class winbar.gitbranch
----@field enabled boolean?
----@field icon string? icon for Git branch indicator.
----@field min_width? integer minimum window width required to display this component.
-
----@class winbar.gitdiff
----@field enabled boolean?
----@field added string? icon for added files in git diff
----@field changed string? icon for changed files in git diff
----@field removed string? icon for removed files in git diff
----@field min_width? integer minimum window width required to display this component.
-
 ---@class winbar.git
----@field branch winbar.gitbranch? git branch configuration
----@field diff winbar.gitdiff? git diff configuration
-
----@class winbar.filename
----@field enabled boolean?
----@field icon boolean? -- show file icon (e.g., via nvim-web-devicons)
----@field format? fun(clients: string): string custom formatter for the filename.
----@field min_width? integer minimum window width required to display this component.
----@field max_segments? integer show the last n folders when two files share the same name.
+---@field branch winbar.git.branch? git branch configuration
+---@field diff winbar.git.diff? git diff configuration
 
 ---@class (exact) winbar.config
 ---@field enabled boolean?
 ---@field update_interval integer? interval in milliseconds
 ---@field filename winbar.filename
----@field lsp_clients winbar.lspClients? LSP client name display.
----@field lsp_diagnostics winbar.diagnostics? diagnostics.
----@field lsp_progress winbar.lspProgress? LSP progress spinner.
+---@field lsp winbar.lsp? LSP-related components
 ---@field icons winbar.icons? icons used throughout the WinBar.
 ---@field show_single_buffer boolean? show with single buffer.
 ---@field exclusions winbar.exclusions?
@@ -131,35 +91,38 @@ M.config = {
     modified = '[+]', -- Shown for unsaved buffers (choice: ●)
     readonly = '[RO]', -- Shown for readonly buffers (choice: )
   },
-  -- LSP client name display
-  lsp_clients = {
-    enabled = true, -- Enable LSP client display
-    separator = ',', -- Separator for multiple clients
-    format = function(clients) -- Formatter for LSP client names
-      return clients
-    end,
-    min_width = 50,
-  },
-  -- Diagnostics configuration
-  lsp_diagnostics = {
-    enabled = true, -- Show diagnostics
-    style = 'standard', -- Display style (`standard` or `mini`)
-    icons = { -- Diagnostic severity icons
-      error = 'e:',
-      hint = 'h:',
-      info = 'i:',
-      warn = 'w:',
+  -- LSP components
+  lsp = {
+    -- LSP client name display
+    clients = {
+      enabled = true, -- Enable LSP client display
+      separator = ',', -- Separator for multiple clients
+      format = function(clients) -- Formatter for LSP client names
+        return clients
+      end,
+      min_width = 50,
     },
-    min_width = 55,
+    -- Diagnostics configuration
+    diagnostics = {
+      enabled = true, -- Show diagnostics
+      style = 'standard', -- Display style (`standard` or `mini`)
+      icons = { -- Diagnostic severity icons
+        error = 'e:',
+        hint = 'h:',
+        info = 'i:',
+        warn = 'w:',
+      },
+      min_width = 55,
+    },
+    -- LSP loading progress display
+    progress = {
+      enabled = true,
+      spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+      spinner_interval = 120,
+      min_width = 50,
+    },
   },
-  -- LSP loading progress display
-  lsp_progress = {
-    enabled = true,
-    spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-    spinner_interval = 120,
-    min_width = 50,
-  },
-  -- Git display
+  -- Git components
   git = {
     branch = {
       enabled = true,

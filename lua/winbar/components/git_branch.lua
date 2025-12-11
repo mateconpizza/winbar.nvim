@@ -21,6 +21,11 @@ local hl_groups = {
   branch = 'WinBarGitBranch',
 }
 
+---@class winbar.git.branch
+---@field enabled boolean?
+---@field icon string? icon for Git branch indicator.
+---@field min_width? integer minimum window width required to display this component.
+
 ---@class winbar.components.gitbranch: winbar.component
 local M = {}
 
@@ -31,7 +36,7 @@ function M.enabled()
   return M.opts.enabled
 end
 
----@type winbar.gitbranch
+---@type winbar.git.branch
 M.opts = {}
 
 ---@class winbar.userHighlights
@@ -77,7 +82,7 @@ function M.autocmd(augroup)
   })
 end
 
----@param opts winbar.gitbranch
+---@param opts winbar.git.branch
 ---@param interval_ms integer
 ---@return winbar.component
 function M.setup(opts, interval_ms)

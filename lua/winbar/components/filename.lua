@@ -12,6 +12,13 @@ local function cmp_icon()
   return require('winbar.components.fileicon')
 end
 
+---@class winbar.filename
+---@field enabled boolean?
+---@field icon boolean? -- show file icon (e.g., via nvim-web-devicons)
+---@field format? fun(clients: string): string custom formatter for the filename.
+---@field min_width? integer minimum window width required to display this component.
+---@field max_segments? integer show the last n folders when two files share the same name.
+
 ---@class winbar.components.filename: winbar.component
 local M = {}
 

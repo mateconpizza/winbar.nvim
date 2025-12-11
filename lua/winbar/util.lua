@@ -1,4 +1,3 @@
----@diagnostic disable: undefined-field
 local uv = vim.uv or vim.loop
 local last_redraw = 0
 
