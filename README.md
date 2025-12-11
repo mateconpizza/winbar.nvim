@@ -12,6 +12,7 @@
 - [x] Filename (icon support)
 - [x] LSP Clients
 - [x] LSP Diagnostics
+- [x] LSP Loading progress (wip)
 - [x] File Icon
 - [x] Git Branch
 - [x] Git Diff
@@ -82,7 +83,7 @@ This plug-in adds a user command `WinBarToggle` for toggling the WinBar.
 require('winbar').setup({
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
-  update_interval = 200, -- How much to wait in milliseconds before update (git diff, diagnostics)
+  update_interval = 1000, -- How much to wait in milliseconds before update (git diff, diagnostics)
   filename = {
     enabled = true,
     icon = true, -- Show file icon (e.g., via nvim-web-devicons)
@@ -90,55 +91,44 @@ require('winbar').setup({
       return filename
     end,
     min_width = 20,
-    max_segments = 3, -- show the last n folders/segments when two files share the same name.
+    max_segments = 3, -- Show the last n folders/segments when two files share the same name.
   },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
-  exclusions = {
-    filetypes = {
-      -- Filetypes where WinBar will not be shown
-      'aerial',
-      'dap-float',
-      'fugitive',
-      'oil',
-      'Trouble',
-      'lazy',
-      'man',
-    },
-    -- Buffer types where WinBar will not be shown
-    buftypes = {
-      'help',
-      'netrw',
-      'nofile',
-      'nowrite',
-      'quickfix',
-      'terminal',
-    },
-  },
   -- Icons used across components
   icons = {
     modified = '[+]', -- Shown for unsaved buffers (choice: ●)
     readonly = '[RO]', -- Shown for readonly buffers (choice: )
   },
-  -- Diagnostics configuration
-  diagnostics = {
-    enabled = true, -- Show diagnostics (LSP/linters)
-    style = 'standard', -- Display style ("standard" or "mini")
-    icons = { -- Diagnostic severity icons
-      error = 'e:',
-      hint = 'h:',
-      info = 'i:',
-      warn = 'w:',
-    },
-    min_width = 55,
-  },
-  -- LSP client name display
+  -- LSP components
   lsp = {
-    enabled = true, -- Enable LSP client display
-    separator = ',', -- Separator for multiple clients
-    format = function(clients) -- Formatter for LSP client names
-      return clients
-    end,
-    min_width = 50,
+    -- LSP client name display
+    clients = {
+      enabled = true, -- Enable LSP client display
+      separator = ',', -- Separator for multiple clients
+      format = function(clients) -- Formatter for LSP client names
+        return clients
+      end,
+      min_width = 50,
+    },
+    -- Diagnostics configuration
+    diagnostics = {
+      enabled = true, -- Show diagnostics
+      style = 'standard', -- Display style (`standard` or `mini`)
+      icons = { -- Diagnostic severity icons
+        error = 'e:',
+        hint = 'h:',
+        info = 'i:',
+        warn = 'w:',
+      },
+      min_width = 55,
+    },
+    -- LSP loading progress display
+    progress = {
+      enabled = true,
+      spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+      spinner_interval = 120,
+      min_width = 50,
+    },
   },
   -- Git display
   git = {
@@ -160,6 +150,7 @@ require('winbar').setup({
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
     center = {}, -- Components at the center
     right = { -- Components aligned to the right
+      'lsp_progress',
       'lsp_status',
       'lsp_diagnostics',
       'modified',
@@ -170,17 +161,50 @@ require('winbar').setup({
   },
   -- Highlight groups
   highlights = {
-    WinBarModified = { link = 'WarningMsg' },
-    WinBarReadonly = { link = 'ErrorMsg' },
-    WinBarGitBranch = { link = 'Comment' },
-    WinBarGitDiffAdded = { link = 'Comment' },
-    WinBarGitDiffChanged = { link = 'Comment' },
-    WinBarGitDiffRemoved = { link = 'Comment' },
-    WinBarLspStatus = { link = 'Comment' },
-    WinBarDiagnosticError = { link = 'DiagnosticError' },
-    WinBarDiagnosticWarn = { link = 'DiagnosticWarn' },
-    WinBarDiagnosticInfo = { link = 'DiagnosticInfo' },
-    WinBarDiagnosticHint = { link = 'DiagnosticHint' },
+    WinBarModified              = { link = 'WarningMsg' },
+    WinBarReadonly              = { link = 'ErrorMsg' },
+    WinBarGitBranch             = { link = 'Comment' },
+    WinBarGitDiffAdded          = { link = 'Comment' },
+    WinBarGitDiffChanged        = { link = 'Comment' },
+    WinBarGitDiffRemoved        = { link = 'Comment' },
+    WinBarLspStatus             = { link = 'Comment' },
+    WinBarDiagnosticError       = { link = 'DiagnosticError' },
+    WinBarDiagnosticWarn        = { link = 'DiagnosticWarn' },
+    WinBarDiagnosticInfo        = { link = 'DiagnosticInfo' },
+    WinBarDiagnosticHint        = { link = 'DiagnosticHint' },
+    WinBarLspProgress           = { link = 'Comment' },
+    WinBarLspProgressSpinner    = { link = 'WarningMsg' },
+    WinBarLspProgressDone       = { link = 'Constant' },
+  },
+  exclusions = {
+    filetypes = {
+      -- Filetypes where WinBar will not be shown
+      'aerial',
+      'checkhealth',
+      'dap-float',
+      'fugitive',
+      'gitcommit',
+      'gitrebase',
+      'help',
+      'lazy',
+      'lspinfo',
+      'man',
+      'oil',
+      'qf',
+      'trouble',
+    },
+    -- Buffer types where WinBar will not be shown
+    buftypes = {
+      'help',
+      'netrw',
+      'nofile',
+      'nowrite',
+      'popup',
+      'prompt',
+      'quickfix',
+      'scratch',
+      'terminal',
+    },
   },
 })
 ```
@@ -194,19 +218,22 @@ require('winbar').setup({
 
 ### Built-in components
 
-| Group                   | Default         | Description                              |
-| ----------------------- | --------------- | ---------------------------------------- |
-| `WinBarReadonly`        | ErrorMsg        | File read-only indicator highlight       |
-| `WinBarModified`        | WarningMsg      | File modified buffer indicator highlight |
-| `WinBarGitBranch`       | Comment         | Git branch highlight                     |
-| `WinBarGitDiffAdded`    | Comment         | Git diff added lines highlight           |
-| `WinBarGitDiffChanged`  | Comment         | Git diff changed lines highlight         |
-| `WinBarGitDiffRemoved`  | Comment         | Git diff removed lines highlight         |
-| `WinBarLspStatus`       | Comment         | LSP client highlight                     |
-| `WinBarDiagnosticError` | DiagnosticError | LSP Diagnostic error highlight           |
-| `WinBarDiagnosticWarn`  | DiagnosticWarn  | LSP Diagnostic warning highlight         |
-| `WinBarDiagnosticInfo`  | DiagnosticInfo  | LSP Diagnostic info highlight            |
-| `WinBarDiagnosticHint`  | DiagnosticHint  | LSP Diagnostic hint highlight            |
+| Group                      | Default         | Description                              |
+| -------------------------- | --------------- | ---------------------------------------- |
+| `WinBarReadonly`           | ErrorMsg        | File read-only indicator highlight       |
+| `WinBarModified`           | WarningMsg      | File modified buffer indicator highlight |
+| `WinBarGitBranch`          | Comment         | Git branch highlight                     |
+| `WinBarGitDiffAdded`       | Comment         | Git diff added lines highlight           |
+| `WinBarGitDiffChanged`     | Comment         | Git diff changed lines highlight         |
+| `WinBarGitDiffRemoved`     | Comment         | Git diff removed lines highlight         |
+| `WinBarLspStatus`          | Comment         | LSP client highlight                     |
+| `WinBarDiagnosticError`    | DiagnosticError | LSP Diagnostic error highlight           |
+| `WinBarDiagnosticWarn`     | DiagnosticWarn  | LSP Diagnostic warning highlight         |
+| `WinBarDiagnosticInfo`     | DiagnosticInfo  | LSP Diagnostic info highlight            |
+| `WinBarDiagnosticHint`     | DiagnosticHint  | LSP Diagnostic hint highlight            |
+| `WinBarLspProgress`        | Comment         | LSP Progress loading                     |
+| `WinBarLspProgressSpinner` | WarningMsg      | LSP Progress loading spinner             |
+| `WinBarLspProgressDone`    | Constant        | LSP Progress loading done messge         |
 
 </details>
 
