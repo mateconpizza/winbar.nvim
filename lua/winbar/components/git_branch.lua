@@ -56,7 +56,7 @@ function M.render()
   return cache().ensure(M.name, bufnr, function()
     -- check for external plugin
     local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-    if branch ~= nil then return highlight().string(hl_groups.branch, icon .. ' ' .. branch) end
+    if branch ~= nil then return highlight().string(hl_groups.branch, with_icon(icon, branch)) end
 
     -- fallback
     branch = utils().git_branch()
