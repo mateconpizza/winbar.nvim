@@ -112,8 +112,8 @@ function M.setup(c)
     -- setup opts
     if module and module.setup then M.register(module.setup(cfg, _interval)) end
 
-    if module.enabled() or module.name == 'modified' then
-      -- autocommands
+    if module.enabled() then
+      -- setup autocommands
       if module and module.autocmd then
         local augroup = utils().augroup(module.name)
         table.insert(M.augroups, augroup)

@@ -13,9 +13,8 @@ local M = {}
 
 M.name = 'modified'
 M.side = 'right'
-M.icon = ''
 function M.enabled()
-  return vim.bo.modified
+  return true
 end
 
 ---@class winbar.userHighlights[]
@@ -25,6 +24,7 @@ M.highlights = {
 }
 
 function M.render()
+  if not vim.bo.modified then return end
   return highlight().string(hl_groups.modified, M.icon)
 end
 

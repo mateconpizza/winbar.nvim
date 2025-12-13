@@ -13,9 +13,8 @@ local M = {}
 
 M.name = 'readonly'
 M.side = 'right'
-M.icon = ''
 function M.enabled()
-  return vim.bo.readonly
+  return true
 end
 
 ---@class winbar.userHighlights
@@ -25,6 +24,7 @@ M.highlights = {
 }
 
 function M.render()
+  if not vim.bo.readonly then return end
   return highlight().string(hl_groups.readonly, M.icon)
 end
 
