@@ -344,7 +344,7 @@ local function stop_timer()
   timer = nil
 end
 
-function M.disable()
+function M.cleanup()
   clear_state()
   stop_timer()
 end

@@ -72,7 +72,7 @@ function M.disable()
 
   -- call component `disable` func
   for _, c in pairs(cmp().registry) do
-    if c and c.disable then c.disable() end
+    if c and c.cleanup then c.cleanup() end
   end
 
   -- reset cache

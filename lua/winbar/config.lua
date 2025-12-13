@@ -42,6 +42,7 @@ M.commands = {
 ---@field layout winbar.layout?
 ---@field highlights winbar.userHighlights? winbar highlights.
 ---@field dev_mode? boolean @private -- enable debug features
+---@field extensions winbar.components.extensions? -- optional components
 M.config = {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
@@ -137,10 +138,12 @@ M.config = {
       min_width = 50,
     },
   },
+  -- Optional components
+  extensions = {},
   -- Layout of the WinBar
   layout = {
     left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
-    center = {}, -- Components aligned to the center
+    center = {}, -- Components at the center
     right = { -- Components aligned to the right
       'lsp_progress',
       'lsp_status',

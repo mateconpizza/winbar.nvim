@@ -10,6 +10,10 @@ local function highlight()
   return require('winbar.highlight')
 end
 
+local function extensions()
+  return require('winbar.components.extensions')
+end
+
 ---@class winbar.components
 ---@field filename winbar.components.filename
 ---@field fileicon winbar.components.fileicon
@@ -33,7 +37,7 @@ setmetatable(M, {
 ---@field name string                               -- unique identifier
 ---@field side 'left'|'center'|'right'              -- position in winbar
 ---@field enabled fun(): boolean                    -- check if it should render
----@field disable? fun()                            -- run when winbar is disable
+---@field cleanup? fun()                            -- run when winbar is disable
 ---@field render fun(): string|nil                  -- return content or nil to hide
 ---@field opts? table|boolean|string                -- component options
 ---@field interval_ms? integer                      -- redraw throttle interval
@@ -89,40 +93,46 @@ function M.register(c)
   M.registry[c.name] = c
 end
 
----@param c winbar.config
-function M.setup(c)
-  -- stylua: ignore
-  local builtin_components = {
-    { 'modified',         c.icons.modified },
-    { 'readonly',         c.icons.readonly },
-    { 'filename',         c.filename },
-    { 'git_branch',       c.git.branch, c.update_interval },
-    { 'git_diff',         c.git.diff, c.update_interval },
-    { 'lsp_clients',      c.lsp.clients },
-    { 'lsp_diagnostics',  c.lsp.diagnostics, c.update_interval },
-    { 'lsp_progress',     c.lsp.progress },
-  }
-
-  for _, item in ipairs(builtin_components) do
-    local name, cfg, _interval = unpack(item)
-
-    ---@type winbar.component
-    local module = M[name]
+local function setup_components(components, specs)
+  for _, item in ipairs(specs) do
+    local name, cfg, interval = unpack(item)
+    local module = components[name]
 
     -- setup opts
-    if module and module.setup then M.register(module.setup(cfg, _interval)) end
+    if module and module.setup then M.register(module.setup(cfg, interval)) end
 
-    if module.enabled() then
+    if module and module.enabled() then
       -- setup autocommands
-      if module and module.autocmd then
+      if module.autocmd then
         local augroup = utils().augroup(module.name)
         table.insert(M.augroups, augroup)
         module.autocmd(augroup)
       end
 
       -- setup highlights
-      if module and module.highlights then highlight().merge(module.highlights) end
+      if module.highlights then highlight().merge(module.highlights) end
     end
+  end
+end
+
+---@param c winbar.config
+function M.setup(c)
+  -- setup built-in components
+  setup_components(M, {
+    { 'modified', c.icons.modified },
+    { 'readonly', c.icons.readonly },
+    { 'filename', c.filename },
+    { 'git_branch', c.git.branch, c.update_interval },
+    { 'git_diff', c.git.diff, c.update_interval },
+    { 'lsp_clients', c.lsp.clients },
+    { 'lsp_diagnostics', c.lsp.diagnostics, c.update_interval },
+    { 'lsp_progress', c.lsp.progress },
+  })
+
+  -- setup extensions/optional components
+  for name, opts in pairs(c.extensions or {}) do
+    local module = extensions()[name]
+    if module then setup_components({ [name] = module }, { { name, opts } }) end
   end
 
   -- setup cleanup autocmd
