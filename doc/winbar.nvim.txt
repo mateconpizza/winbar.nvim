@@ -130,7 +130,7 @@ Default configuration ~
           min_width = 50,
         },
       },
-      -- Git display
+      -- Git components
       git = {
         branch = {
           enabled = true,
@@ -145,6 +145,8 @@ Default configuration ~
           min_width = 50,
         },
       },
+      -- Optional components
+      extensions = {},
       -- Layout of the WinBar
       layout = {
         left = { 'git_branch', 'git_diff' }, -- Components aligned to the left
