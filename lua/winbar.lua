@@ -143,7 +143,7 @@ end
 function M.render()
   if not config.show_single_buffer then
     local visible_buffers = vim.tbl_filter(function(buf)
-      -- count visibles buffers only. Ignore floating windows (fzf-lua, Mason, etc)
+      -- count visible buffers only. Ignore floating windows (fzf-lua, Mason, etc)
       return vim.api.nvim_buf_is_loaded(buf)
         and vim.api.nvim_buf_get_name(buf) ~= ''
         and utils().is_visible_in_normal_win(buf)

@@ -5,7 +5,7 @@
     alt="Preview" style="width: 80%; max-width: 600px; height: auto;">
 </p>
 
-<p align="center">~ Configurable and minimal Neovim WinBar ~<p>
+<p align="center">- Configurable and minimal Neovim WinBar -<p>
 
 ## Components
 
@@ -21,6 +21,28 @@
 
 - [x] Readonly status
 - [x] Modified status
+
+### Optional / Extensions
+
+Optional components are **not enabled by default.**
+
+To enable one, add its configuration under the **extensions** table and include its name in your **layout** table.
+
+<details>
+<summary><strong>Vim mode</strong></summary>
+
+```lua
+extensions = {
+  modes = {
+    enabled = true,
+    format = function(mode)
+      return mode
+    end,
+  },
+}
+```
+
+</details>
 
 ## Installation
 
@@ -235,7 +257,7 @@ require('winbar').setup({
 | `WinBarDiagnosticHint`     | DiagnosticHint  | LSP Diagnostic hint highlight            |
 | `WinBarLspProgress`        | Comment         | LSP Progress loading                     |
 | `WinBarLspProgressSpinner` | WarningMsg      | LSP Progress loading spinner             |
-| `WinBarLspProgressDone`    | Constant        | LSP Progress loading done messge         |
+| `WinBarLspProgressDone`    | Constant        | LSP Progress loading done message        |
 
 </details>
 
@@ -244,6 +266,15 @@ require('winbar').setup({
 
 - Terminal: [st-terminal](https://st.suckless.org/)
 - Font: [maple-font](https://github.com/subframe7536/maple-font)
-- Coloscheme: built-in `Retrobox`
+- Colorscheme: built-in `Retrobox`
+
+</details>
+
+<details>
+<summary><strong>Todo</strong></summary>
+
+- [ ] Add `mini` opt to `lsp progress` component
+  - Or maybe add `format` fn `func(progress, message, percentage, spinner)`
+  - show only percentage and spinner
 
 </details>
