@@ -1,11 +1,15 @@
 # WinBar
 
+<!-- panvimdoc-ignore-start -->
+
 <p align="center">
     <img src="./assets/screenshot.png"
     alt="Preview" style="width: 80%; max-width: 600px; height: auto;">
 </p>
 
 <p align="center">- Configurable and minimal Neovim WinBar -<p>
+
+<!-- panvimdoc-ignore-end -->
 
 ## Components
 

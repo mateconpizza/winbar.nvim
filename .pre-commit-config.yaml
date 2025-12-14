@@ -24,6 +24,6 @@ repos:
           - README.md
           - "--project-name"
           - "winbar.nvim"
-          - "--title-date-pattern" 
-          - "%Y %B"
+          - "--description"
+          - "configurable and minimal neovim winbar"
         pass_filenames: false
