@@ -7,7 +7,9 @@
     alt="Preview" style="width: 80%; max-width: 600px; height: auto;">
 </p>
 
-<p align="center">- Configurable and minimal Neovim WinBar -<p>
+<p align="center">
+    - Configurable and minimal Neovim WinBar -
+</p>
 
 <!-- panvimdoc-ignore-end -->
 
@@ -17,7 +19,6 @@
 - [x] LSP Clients
 - [x] LSP Diagnostics
 - [x] LSP Loading progress (wip)
-- [x] File Icon
 - [x] Git Branch
 - [x] Git Diff
 
@@ -26,14 +27,39 @@
 - [x] Readonly status
 - [x] Modified status
 
-### Optional / Extensions
+## Extensions
 
-Optional components are **not enabled by default.**
+Extensions add optional functionality to the winbar.
 
-To enable one, add its configuration under the **extensions** table and include its name in your **layout** table.
+They are **disabled by default** and can be enabled individually.
+
+Each extension:
+
+- is configured under the `extensions` table
+- must be added to the `layout` table to be displayed
+
+### Enabling an extension
+
+```lua
+layout = {
+  'modes',
+  'filename',
+  ...
+}
+
+extensions = {
+  modes = {
+    enabled = true,
+  },
+}
+```
+
+### Available extensions
 
 <details>
-<summary><strong>Vim mode</strong></summary>
+<summary><strong>Vim mode</strong> (<code>modes</code>)</summary>
+
+- Displays the current Vim mode in the winbar.
 
 ```lua
 extensions = {
@@ -43,6 +69,20 @@ extensions = {
       return mode
     end,
   },
+}
+
+-- Highlight groups
+highlights = {
+  WinBarModeNormal        = {  link = 'Conceal'    },
+  WinBarModeInsert        = {  link = 'String'     },
+  WinBarModeVisual        = {  link = 'Title'      },
+  WinBarModeReplace       = {  link = 'Error'      },
+  WinBarModeCommand       = {  link = 'Identifier' },
+  WinBarModeTerminal      = {  link = 'Special'    },
+  WinBarModeSelect        = {  link = 'Statement'  },
+  WinBarModeMore          = {  link = 'WarningMsg' },
+  WinBarModeConfirm       = {  link = 'WarningMsg' },
+  WinBarModeShell         = {  link = 'Special'    },
 }
 ```
 
@@ -97,7 +137,7 @@ end)
 </details>
 
 > [!NOTE]
-> **Note**: You must call `require('winbar').setup()` to activate the plugin.
+> You must call `require('winbar').setup()` to activate the plugin.
 
 This plug-in adds a user command `WinBarToggle` for toggling the WinBar.
 
@@ -284,6 +324,8 @@ require('winbar').setup({
   - [ ] Add `mini` opt to component
     - Maybe add `format` fn `func(progress, message, percentage, spinner)`
     - Show only percentage and spinner
+- LSP Clients:
+  - [ ] Rename `lsp_status` -> `lsp_clients`
 
 </details>
 

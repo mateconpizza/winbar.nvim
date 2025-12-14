@@ -5,6 +5,7 @@ Table of Contents                              *winbar.nvim-table-of-contents*
 
 1. WinBar                                                 |winbar.nvim-winbar|
   - Components                                 |winbar.nvim-winbar-components|
+  - Extensions                                 |winbar.nvim-winbar-extensions|
   - Installation                             |winbar.nvim-winbar-installation|
   - Highlight groups                     |winbar.nvim-winbar-highlight-groups|
 
@@ -18,7 +19,6 @@ COMPONENTS                                     *winbar.nvim-winbar-components*
 - ☒ LSP Clients
 - ☒ LSP Diagnostics
 - ☒ LSP Loading progress (wip)
-- ☒ File Icon
 - ☒ Git Branch
 - ☒ Git Diff
 
@@ -29,14 +29,40 @@ STATUS ~
 - ☒ Modified status
 
 
-OPTIONAL / EXTENSIONS ~
+EXTENSIONS                                     *winbar.nvim-winbar-extensions*
 
-Optional components are **not enabled by default.**
+Extensions add optional functionality to the winbar.
 
-To enable one, add its configuration under the **extensions** table and include
-its name in your **layout** table.
+They are **disabled by default** and can be enabled individually.
 
-Vim mode ~
+Each extension:
+
+- is configured under the `extensions` table
+- must be added to the `layout` table to be displayed
+
+
+ENABLING AN EXTENSION ~
+
+>lua
+    layout = {
+      'modes',
+      'filename',
+      ...
+    }
+    
+    extensions = {
+      modes = {
+        enabled = true,
+      },
+    }
+<
+
+
+AVAILABLE EXTENSIONS ~
+
+Vim mode (modes) ~
+
+- Displays the current Vim mode in the winbar.
 
 >lua
     extensions = {
@@ -46,6 +72,20 @@ Vim mode ~
           return mode
         end,
       },
+    }
+    
+    -- Highlight groups
+    highlights = {
+      WinBarModeNormal        = {  link = 'Conceal'    },
+      WinBarModeInsert        = {  link = 'String'     },
+      WinBarModeVisual        = {  link = 'Title'      },
+      WinBarModeReplace       = {  link = 'Error'      },
+      WinBarModeCommand       = {  link = 'Identifier' },
+      WinBarModeTerminal      = {  link = 'Special'    },
+      WinBarModeSelect        = {  link = 'Statement'  },
+      WinBarModeMore          = {  link = 'WarningMsg' },
+      WinBarModeConfirm       = {  link = 'WarningMsg' },
+      WinBarModeShell         = {  link = 'Special'    },
     }
 <
 
@@ -93,8 +133,7 @@ With folke/lazy.nvim ~
 <
 
 
-  [!NOTE] **Note**: You must call `require('winbar').setup()` to activate the
-  plugin.
+  [!NOTE] You must call `require('winbar').setup()` to activate the plugin.
 This plug-in adds a user command `WinBarToggle` for toggling the WinBar.
 
 Default configuration ~
