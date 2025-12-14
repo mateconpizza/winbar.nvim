@@ -270,11 +270,17 @@ require('winbar').setup({
 
 </details>
 
+<!-- panvimdoc-ignore-start -->
+
 <details>
 <summary><strong>Todo</strong></summary>
 
-- [ ] Add `mini` opt to `lsp progress` component
-  - Or maybe add `format` fn `func(progress, message, percentage, spinner)`
-  - show only percentage and spinner
+- LSP progress:
+  - [ ] Move to `extensions`
+  - [ ] Add `mini` opt to component
+    - Maybe add `format` fn `func(progress, message, percentage, spinner)`
+    - Show only percentage and spinner
 
 </details>
+
+<!-- panvimdoc-ignore-end -->
