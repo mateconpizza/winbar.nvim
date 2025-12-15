@@ -1,9 +1,23 @@
 local uv = vim.uv or vim.loop
 local last_redraw = 0
 
+-- track the global active window id
+local active_win_id = vim.api.nvim_get_current_win()
+
+vim.api.nvim_create_autocmd('WinEnter', {
+  callback = function()
+    active_win_id = vim.api.nvim_get_current_win()
+  end,
+})
+
 ---@module 'winbar.util'
 ---@class winbar.utils
 local M = {}
+
+-- check if the window currently being drawn is the active one
+function M.is_active_win()
+  return vim.api.nvim_get_current_win() == active_win_id
+end
 
 -- get the relative path of a buffer name, falling back to filename only for home directory paths.
 ---@param bufname string
