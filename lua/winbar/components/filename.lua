@@ -8,9 +8,17 @@ local function utils()
   return require('winbar.util')
 end
 
+local function highlight()
+  return require('winbar.highlight')
+end
+
 local function cmp_icon()
   return require('winbar.components.fileicon')
 end
+
+local hl_groups = {
+  filename = 'WinbarFilename',
+}
 
 ---@class winbar.filename
 ---@field enabled boolean?
@@ -31,17 +39,27 @@ end
 ---@type winbar.filename
 M.opts = {}
 
+---@class winbar.userHighlights
+---@field WinbarFilename winbar.HighlightAttrs? filename highlight
+M.highlights = {
+  [hl_groups.filename] = { link = 'Normal' },
+}
+
 ---@return string
 function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
 
   local bufnr = vim.api.nvim_get_current_buf()
 
-  return cache().ensure(M.name, bufnr, function()
+  -- this handles the active/inactive color based on the current window.
+  local icon_string = M.opts.icon and cmp_icon().render() .. ' ' or ''
+
+  -- cache the filename logic only
+  local filename_string = cache().ensure(M.name, bufnr, function()
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local filename = vim.fn.fnamemodify(bufname, ':t')
 
-    -- check if duplicate name
+    -- check if duplicate name (heavy logic)
     local all_buffers = vim.api.nvim_list_bufs()
     local duplicates = 0
     for _, buf in ipairs(all_buffers) do
@@ -52,13 +70,15 @@ function M.render()
     end
 
     -- add relative path if duplicate
-    if duplicates > 1 then filename = require('winbar.util').get_relative_path(bufname, M.opts.max_segments) end
-
-    -- add icon
-    if M.opts.icon then filename = cmp_icon().render() .. ' ' .. filename end
+    if duplicates > 1 then filename = utils().get_relative_path(bufname, M.opts.max_segments) end
 
     return M.opts.format(filename)
   end)
+
+  local hl_group = hl_groups.filename
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return icon_string .. highlight().string(hl_group, filename_string)
 end
 
 ---@param opts winbar.filename

@@ -4,50 +4,54 @@ local function cache()
   return require('winbar.cache')
 end
 
-local function highlighter()
+local function utils()
+  return require('winbar.util')
+end
+
+local function highlight()
   return require('winbar.highlight')
 end
 
 ---@class winbar.components.fileicon: winbar.component
 local M = {}
 
--- get icon from external plugin
-local function get_icon(bufnr)
+-- Helper to resolve icon and highlight group name from external plugins
+---@param bufnr number
+---@return string? icon
+---@return string? hl_group
+local function resolve_icon_data(bufnr)
   local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':t')
   local filetype = vim.bo[bufnr].filetype
   local ext = vim.fn.fnamemodify(filename, ':e')
-  local icon, hl
 
   -- try mini.icons
-  local _, mini_icons = pcall(require, 'mini.icons')
   if _G.MiniIcons then
-    local is_default
+    local mini_icons = require('mini.icons')
+    local icon, hl, is_default
 
-    -- by filetype
+    -- try specific resolvers first for accuracy
     icon, hl, is_default = mini_icons.get('filetype', filetype)
-    if not is_default then return highlighter().string(hl, icon) end
+    if not is_default then return icon, hl end
 
-    -- by extension
     if ext ~= '' then
       icon, hl, is_default = mini_icons.get('extension', ext)
-      if not is_default then return highlighter().string(hl, icon) end
+      if not is_default then return icon, hl end
     end
 
-    -- by file (lets `mini.icons` do its full internal resolution)
+    -- fallback to generic file resolver
     icon, hl = mini_icons.get('file', filename)
-    return highlighter().string(hl, icon)
+    return icon, hl
   end
 
-  -- fallback to devicons
-  if not icon then
-    local ok_dev, devicons = pcall(require, 'nvim-web-devicons')
-    if ok_dev then
-      if ext == '' then ext = filetype end
-      icon, hl = devicons.get_icon(filename, ext or filetype, { default = true })
-    end
+  -- fallback to nvim-web-devicons
+  local ok, devicons = pcall(require, 'nvim-web-devicons')
+  if ok then
+    if ext == '' then ext = filetype end
+    local icon, hl = devicons.get_icon(filename, ext, { default = true })
+    return icon, hl
   end
 
-  return (icon and hl) and (highlighter().string(hl, icon)) or ''
+  return nil, nil
 end
 
 M.name = 'fileicon'
@@ -61,9 +65,21 @@ M.opts = false
 ---@return string
 function M.render()
   local bufnr = vim.api.nvim_get_current_buf()
-  return cache().ensure(M.name, bufnr, function()
-    return get_icon(bufnr)
+
+  -- retrieve icon data
+  -- result object: { icon = "", hl = "MiniIconsLua" }
+  local data = cache().ensure(M.name, bufnr, function()
+    local icon, hl = resolve_icon_data(bufnr)
+    if not icon or not hl then return nil end
+    return { icon = icon, hl = hl }
   end)
+
+  if not data then return '' end
+
+  local hl_group = data.hl
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return highlight().string(hl_group, data.icon)
 end
 
 ---@param opts boolean

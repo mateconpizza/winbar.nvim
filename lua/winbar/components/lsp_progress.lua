@@ -103,20 +103,31 @@ end
 
 local function format_spinner()
   local frame = M.opts.spinner[spinner_index] or M.opts.spinner[1]
-  return highlight().string(hl_groups.spinner, frame)
+  local hl_group = hl_groups.spinner
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return highlight().string(hl_group, frame)
 end
 
 local function format_done(bufnr)
   local buf_data = state.buffer_data[bufnr]
   local title = buf_data and buf_data.done_title or ''
   local out
+
+  local hl_progress_group = hl_groups.progress
+  local hl_done_group = hl_groups.done
+  if not utils().is_active_win() then
+    hl_progress_group = highlight().inactive
+    hl_done_group = highlight().inactive
+  end
+
   if title ~= '' then
     -- e.g. "Loading workspace ✓ done"
-    local left = highlight().string(hl_groups.progress, title)
-    local right = highlight().string(hl_groups.done, done.symbol .. ' done')
+    local left = highlight().string(hl_progress_group, title)
+    local right = highlight().string(hl_done_group, done.symbol .. ' done')
     out = left .. ' ' .. right
   else
-    out = highlight().string(hl_groups.done, done.symbol .. ' done')
+    out = highlight().string(hl_done_group, done.symbol .. ' done')
   end
 
   -- schedule clearing after timeout
@@ -185,7 +196,9 @@ local function update_buffer_message(bufnr, result)
   end
 
   local combined = build_combined_text(token, v)
-  local base = highlight().string(hl_groups.progress, combined)
+  local hl_progress_group = hl_groups.progress
+  if not utils().is_active_win() then hl_progress_group = highlight().inactive end
+  local base = highlight().string(hl_progress_group, combined)
 
   if v.kind == state.loading.BEGIN then
     buf_data.message = base .. ' '

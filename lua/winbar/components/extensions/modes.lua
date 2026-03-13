@@ -6,10 +6,6 @@ local function highlight()
   return require('winbar.highlight')
 end
 
-local function extensions()
-  return require('winbar.components.extensions')
-end
-
 -- stylua: ignore
 local hl_groups = {
   NORMAL        = 'WinBarModeNormal',

@@ -9,6 +9,9 @@ local M = {}
 ---@class winbar.highlights[]
 M.highlights = {}
 
+-- highlight group for inactive winbar
+M.inactive = 'WinBarNC'
+
 -- sets a highlight group
 ---@param name string
 ---@param val any

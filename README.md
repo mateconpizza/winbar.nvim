@@ -326,6 +326,8 @@ require('winbar').setup({
     - Show only percentage and spinner
 - LSP Clients:
   - [ ] Rename `lsp_status` -> `lsp_clients`
+- WinBar:
+  - [x] track `active/inactive` window and link to `WinBarNC`
 
 </details>
 

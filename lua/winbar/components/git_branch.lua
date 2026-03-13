@@ -46,24 +46,27 @@ M.highlights = {
 }
 
 function M.render()
-  local bufnr = vim.api.nvim_get_current_buf()
   if utils().is_narrow(M.opts.min_width) then return '' end
 
+  local bufnr = vim.api.nvim_get_current_buf()
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   if bufname == '' then return '' end
-  local icon = M.opts.icon
 
-  return cache().ensure(M.name, bufnr, function()
-    -- check for external plugin
-    local branch = vim.b.minigit_summary_string or vim.b.gitsigns_head
-    if branch ~= nil then return highlight().string(hl_groups.branch, with_icon(icon, branch)) end
+  local branch_name = cache().ensure(M.name, bufnr, function()
+    -- check for external plugin variables first
+    local b = vim.b[bufnr].minigit_summary_string or vim.b[bufnr].gitsigns_head
+    if b then return b end
 
-    -- fallback
-    branch = utils().git_branch()
-    if not branch then return '' end
-
-    return highlight().string('WinBarGitBranch', with_icon(icon, branch))
+    -- fallback to shell command
+    return utils().git_branch()
   end)
+
+  if not branch_name or branch_name == '' then return '' end
+
+  local hl_group = hl_groups.branch
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return highlight().string(hl_group, with_icon(M.opts.icon, branch_name))
 end
 
 function M.autocmd(augroup)

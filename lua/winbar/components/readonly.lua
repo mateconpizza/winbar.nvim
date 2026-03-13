@@ -1,5 +1,9 @@
 -- comp/readonly.lua
 
+local function utils()
+  return require('winbar.util')
+end
+
 local function highlight()
   return require('winbar.highlight')
 end
@@ -25,7 +29,10 @@ M.highlights = {
 
 function M.render()
   if not vim.bo.readonly then return end
-  return highlight().string(hl_groups.readonly, M.icon)
+  local hl_group = hl_groups.readonly
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return highlight().string(hl_group, M.icon)
 end
 
 ---@param icon string

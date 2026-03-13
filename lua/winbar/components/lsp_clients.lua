@@ -9,7 +9,7 @@ local function utils()
   return require('winbar.util')
 end
 
-local function highlighter()
+local function highlight()
   return require('winbar.highlight')
 end
 
@@ -47,16 +47,22 @@ function M.render()
   local bufnr = vim.api.nvim_get_current_buf()
   if #vim.lsp.get_clients({ bufnr = bufnr }) == 0 then return '' end
 
-  return cache().ensure(M.name, bufnr, function()
+  local lsp_clients = cache().ensure(M.name, bufnr, function()
     local clients = vim.lsp.get_clients({ bufnr = bufnr })
     local names = {}
+
     for _, client in pairs(clients) do
       table.insert(names, client.name)
     end
-    local result = M.opts.format(table.concat(names, M.opts.separator))
 
-    return highlighter().string(hl_groups.status, result)
+    return M.opts.format(table.concat(names, M.opts.separator))
   end)
+
+  if not lsp_clients or lsp_clients == '' then return '' end
+  local hl_group = hl_groups.status
+  if not utils().is_active_win() then hl_group = highlight().inactive end
+
+  return highlight().string(hl_group, lsp_clients)
 end
 
 function M.autocmd(augroup)

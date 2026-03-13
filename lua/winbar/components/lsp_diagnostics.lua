@@ -22,28 +22,29 @@ local hl_groups = {
 -- formats diagnostic counts in standard mode
 ---@param counts table
 ---@param icons winbar.lsp.diagnosticIcons
----@return string
-local function format_standard(counts, icons)
-  if vim.o.columns < 60 then return '' end
+---@return table<integer, {count: integer, type: string, icon: string}>
+local function format_standard_data(counts, icons)
+  if vim.o.columns < 60 then return {} end
   icons = icons or {}
-  local components = {}
-  local hl = highlight().string
+  local data_parts = {}
 
-  if counts.errors > 0 then table.insert(components, hl(hl_groups.error, icons.error .. counts.errors)) end
-  if counts.warnings > 0 then table.insert(components, hl(hl_groups.warn, icons.warn .. counts.warnings)) end
-  if counts.info > 0 then table.insert(components, hl(hl_groups.info, icons.info .. counts.info)) end
-  if counts.hints > 0 then table.insert(components, hl(hl_groups.hint, icons.hint .. counts.hints)) end
+  if counts.errors > 0 then table.insert(data_parts, { count = counts.errors, icon = icons.error, type = 'error' }) end
+  if counts.warnings > 0 then
+    table.insert(data_parts, { count = counts.warnings, icon = icons.warn, type = 'warn' })
+  end
+  if counts.info > 0 then table.insert(data_parts, { count = counts.info, icon = icons.info, type = 'info' }) end
+  if counts.hints > 0 then table.insert(data_parts, { count = counts.hints, icon = icons.hint, type = 'hint' }) end
 
-  return table.concat(components, ' ')
+  return data_parts
 end
 
--- formats diagnostic counts in minimalist mode
+-- formats diagnostic counts in minimalist mode (data layer)
 ---@param counts table
----@return string
-local function format_mini(counts, bug_icon)
-  if counts.errors == 0 then return '' end
+---@return table<integer, {count: integer, type: string, icon: string}>
+local function format_mini_data(counts, bug_icon)
+  if counts.errors == 0 then return {} end
   bug_icon = bug_icon or ''
-  return highlight().string(hl_groups.error, bug_icon .. counts.errors)
+  return { { count = counts.errors, icon = bug_icon, type = 'error' } }
 end
 
 -- diagnostic counts for the current buffer
@@ -97,6 +98,7 @@ M.highlights = {
 ---@type winbar.lsp.diagnostics
 M.opts = {}
 
+---@return string
 function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
 
@@ -106,11 +108,36 @@ function M.render()
 
   local icons = M.opts.icons or {}
 
-  return cache().ensure(M.name, bufnr, function()
-    local counts = get_diagnostic_counts(bufnr)
-    if M.opts.style == 'mini' then return format_mini(counts, icons.error) end
-    return format_standard(counts, icons)
+  -- get raw diagnostic counts (cached)
+  local counts = cache().ensure(M.name, bufnr, function()
+    return get_diagnostic_counts(bufnr)
   end, M.interval_ms)
+
+  -- format into raw data structure (cached)
+  local data_parts
+  if M.opts.style == 'mini' then
+    data_parts = format_mini_data(counts, icons.error)
+  else
+    data_parts = format_standard_data(counts, icons)
+  end
+
+  if vim.tbl_isempty(data_parts) then return '' end
+
+  -- apply highlighting (dynamic / uncached)
+  local is_active = utils().is_active_win()
+  local hl_suffix = is_active and '' or 'NC'
+  local components = {}
+  local hl = highlight().string
+
+  for _, part in ipairs(data_parts) do
+    local base_group = hl_groups[part.type] -- e.g., 'WinBarLspDiagnosticsError'
+    local final_group = base_group .. hl_suffix -- e.g., 'WinBarLspDiagnosticsErrorNC'
+    local content = string.format('%s%d', part.icon, part.count)
+
+    table.insert(components, hl(final_group, content))
+  end
+
+  return table.concat(components, ' ')
 end
 
 function M.autocmd(augroup)

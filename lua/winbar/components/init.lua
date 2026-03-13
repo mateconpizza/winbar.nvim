@@ -66,8 +66,7 @@ end
 
 ---@param c winbar.component
 function M.add_component(c)
-  -- WIP:
-  -- if c and c.setup then M.register(c.setup(cfg, _interval)) end
+  -- WIP: finish implementation
   if c and c.autocmd then
     local augroup = utils().augroup(c.name)
     table.insert(M.augroups, augroup)

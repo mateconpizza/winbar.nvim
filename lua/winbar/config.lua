@@ -47,15 +47,6 @@ M.config = {
   -- Core behavior
   enabled = true, -- Enable the WinBar plugin
   update_interval = 1000, -- How much to wait in milliseconds before update (git diff, diagnostics)
-  filename = {
-    enabled = true,
-    icon = true, -- Show file icon (e.g., via nvim-web-devicons)
-    format = function(filename) -- Custom formatter for the filename.
-      return filename
-    end,
-    min_width = 20,
-    max_segments = 3, -- Show the last n folders/segments when two files share the same name.
-  },
   show_single_buffer = true, -- Show WinBar even with a single visible buffer
   exclusions = {
     filetypes = {
@@ -86,6 +77,16 @@ M.config = {
       'scratch',
       'terminal',
     },
+  },
+  -- Filename and icon support
+  filename = {
+    enabled = true,
+    icon = true, -- Show file icon (e.g., via nvim-web-devicons)
+    format = function(filename) -- Custom formatter for the filename.
+      return filename
+    end,
+    min_width = 20,
+    max_segments = 3, -- Show the last n folders/segments when two files share the same name.
   },
   -- Icons used across components
   icons = {

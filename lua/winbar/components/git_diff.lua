@@ -41,17 +41,31 @@ end
 
 ---@param c winbar.git.diff
 ---@param diffstat string
-local function format_gitdiff_output(c, diffstat)
+---@param is_active boolean
+local function format_gitdiff_output(c, diffstat, is_active)
   local hunks = parse_diffstat(diffstat)
-  local h = highlighter().string
   local parts = {}
+  local groups = {
+    added = is_active and hl_groups.added or highlighter().inactive,
+    changed = is_active and hl_groups.changed or highlighter().inactive,
+    removed = is_active and hl_groups.removed or highlighter().inactive,
+  }
 
-  if hunks.added > 0 then table.insert(parts, h(hl_groups.added, string.format('%s%d', c.added, hunks.added))) end
-  if hunks.changed > 0 then
-    table.insert(parts, h(hl_groups.changed, string.format('%s%d', c.changed, hunks.changed)))
+  local hl = highlighter().string
+
+  if hunks.added > 0 then
+    local group = groups.added
+    table.insert(parts, hl(group, string.format('%s%d', c.added, hunks.added)))
   end
+
+  if hunks.changed > 0 then
+    local group = groups.changed
+    table.insert(parts, hl(group, string.format('%s%d', c.changed, hunks.changed)))
+  end
+
   if hunks.removed > 0 then
-    table.insert(parts, h(hl_groups.removed, string.format('%s%d', c.removed, hunks.removed)))
+    local group = groups.removed
+    table.insert(parts, hl(group, string.format('%s%d', c.removed, hunks.removed)))
   end
 
   return table.concat(parts, ' ')
@@ -92,12 +106,18 @@ function M.render()
   if utils().is_narrow(M.opts.min_width) then return '' end
   local bufnr = vim.api.nvim_get_current_buf()
 
-  return cache().ensure(M.name, bufnr, function()
-    local diffstat = vim.b.minidiff_summary_string or vim.b.gitsigns_status
-    if diffstat == nil then return '' end
-
-    return format_gitdiff_output(M.opts, diffstat)
+  -- retrieve raw diffstat (cached)
+  local diffstat = cache().ensure(M.name, bufnr, function()
+    local d = vim.b[bufnr].minidiff_summary_string or vim.b[bufnr].gitsigns_status
+    return d or ''
   end, M.interval_ms)
+
+  if diffstat == '' then return '' end
+
+  local is_active = utils().is_active_win()
+
+  -- format and highlight (dynamic)
+  return format_gitdiff_output(M.opts, diffstat, is_active)
 end
 
 function M.autocmd(augroup)
